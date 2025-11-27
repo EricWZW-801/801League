@@ -1,1 +1,923 @@
-# 801League
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>801.LEAGUE 赛事系统 v0.5</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #080a10;
+            --panel-bg: #11141d;
+            --panel-border: #232936;
+            
+            --primary-gold: #cfaa68;
+            --primary-gold-dim: #8a7346;
+            
+            --text-white: #ffffff;
+            --text-gray: #7d859e;
+            
+            --rank-1-bg: #cfaa68;
+            --rank-2-bg: #8b9bb4;
+            --rank-3-bg: #a05e46;
+            --rank-4-bg: #4a5568;
+
+            /* 字体定义 */
+            --font-head: 'Oswald', sans-serif;
+            --font-num: 'JetBrains Mono', monospace;
+            --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 50% 0%, #1a1f2e 0%, transparent 70%);
+            color: var(--text-white);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 3px;
+            background: var(--primary-gold);
+            box-shadow: 0 0 10px var(--primary-gold-dim);
+        }
+
+        .header h1 { 
+            margin: 0; 
+            font-family: var(--font-head);
+            font-style: italic; 
+            font-weight: 700; 
+            font-size: 2.8rem; 
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(180deg, #fff 0%, #ccc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        
+        .header .meta-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .subtitle {
+            color: var(--primary-gold);
+            font-family: var(--font-head);
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        
+        .version-badge {
+            background: rgba(207, 170, 104, 0.15);
+            border: 1px solid var(--primary-gold-dim);
+            color: var(--primary-gold);
+            font-family: var(--font-num);
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* --- Input Card --- */
+        .input-card {
+            background: var(--panel-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            width: 100%;
+            max-width: 550px;
+            margin-bottom: 30px;
+            border: 1px solid var(--panel-border);
+            position: relative;
+            overflow: hidden;
+        }
+        /* 顶部光效 */
+        .input-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-gold), transparent);
+            opacity: 0.5;
+        }
+
+        .player-row {
+            display: grid;
+            grid-template-columns: 40px 1.5fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .wind-label { 
+            font-family: var(--font-head);
+            font-weight: 500; 
+            color: var(--primary-gold); 
+            text-align: center; 
+            font-size: 1.4rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        input {
+            background: #0b0e14;
+            border: 1px solid #2a2f40;
+            color: #fff;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-family: var(--font-body);
+        }
+        input::placeholder { color: #3c4357; }
+        
+        input:focus { 
+            outline: none; 
+            border-color: var(--primary-gold); 
+            background: #12151f;
+            box-shadow: 0 0 15px rgba(207, 170, 104, 0.15);
+        }
+        
+        input[type="number"] { 
+            font-family: var(--font-num); 
+            font-weight: 700; 
+            letter-spacing: 1px;
+        }
+
+        /* 校验条 */
+        .status-bar {
+            text-align: center;
+            font-size: 0.9rem;
+            margin: 20px 0;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: var(--font-num);
+            letter-spacing: 0.5px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+        .status-ok { color: #4dff88; border-color: rgba(77, 255, 136, 0.2); background: rgba(77, 255, 136, 0.05); }
+        .status-warn { color: #ffcc00; border-color: rgba(255, 204, 0, 0.2); background: rgba(255, 204, 0, 0.05); }
+        .status-error { color: #ff4d4d; border-color: rgba(255, 77, 77, 0.2); background: rgba(255, 77, 77, 0.05); }
+
+        .btn-group { display: flex; gap: 15px; margin-top: 25px; }
+        
+        button {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-family: var(--font-head);
+            font-size: 1rem;
+            letter-spacing: 1.5px;
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-submit { 
+            background: linear-gradient(135deg, #cfaa68 0%, #aa8949 100%); 
+            color: #1a1a1a; 
+            box-shadow: 0 4px 20px rgba(207, 170, 104, 0.25);
+        }
+        .btn-submit:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-submit:active { transform: translateY(1px); }
+        
+        .btn-reset { background: #232936; color: #7d859e; border: 1px solid #2a2f40;}
+        .btn-reset:hover { background: #2a2f40; color: #fff; }
+
+        /* --- Tables --- */
+        .section-title {
+            width: 100%;
+            max-width: 600px;
+            margin: 40px 0 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-title span {
+            font-family: var(--font-head);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-white);
+            border-left: 4px solid var(--primary-gold);
+            padding-left: 12px;
+            letter-spacing: 1px;
+        }
+
+        table {
+            width: 100%;
+            max-width: 600px;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--panel-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        th { 
+            background: #1a1f2e; 
+            color: var(--text-gray); 
+            padding: 15px; 
+            font-size: 0.75rem; 
+            font-family: var(--font-head);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--panel-border);
+        }
+        
+        td { 
+            padding: 14px; 
+            text-align: center; 
+            border-bottom: 1px solid #1f2536; 
+            font-family: var(--font-num); 
+            font-size: 0.9rem;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .score-plus { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .score-minus { color: #6a768f; }
+
+        /* --- History Detail --- */
+        .history-row { cursor: pointer; transition: background 0.2s; }
+        .history-row:hover { background: #1f2536; }
+        .history-detail-row { display: none; background: #0c0e14; }
+        .history-detail-row.show { display: table-row; }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 15px;
+        }
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #161b26;
+            padding: 10px 5px;
+            border-radius: 6px;
+            border: 1px solid #232936;
+        }
+        .d-rank { font-family: var(--font-head); font-weight: bold; color: var(--primary-gold); margin-bottom: 4px; }
+        .d-name { color: #aaa; font-size: 0.8rem; margin-bottom: 4px; font-weight: bold;}
+        .d-pt { font-family: var(--font-num); font-weight: bold; font-size: 0.9rem; }
+
+        /* Footer */
+        .main-footer {
+            margin-top: 50px;
+            margin-bottom: 20px;
+            color: #3c4357;
+            font-size: 0.7rem;
+            text-align: center;
+            letter-spacing: 1px;
+            font-family: var(--font-body);
+            text-transform: uppercase;
+        }
+
+        /* =========================================
+           战报卡片 (Pro Design)
+           ========================================= */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .share-card-container {
+            /* 战报卡片外阴影，模拟发光 */
+            box-shadow: 0 0 80px rgba(0,0,0,0.8);
+            margin-bottom: 20px;
+        }
+
+        .share-card {
+            width: 520px;
+            background: #12151f;
+            /* 科技网格背景 */
+            background-image: 
+                linear-gradient(rgba(18, 21, 31, 0.97), rgba(18, 21, 31, 0.97)),
+                repeating-linear-gradient(45deg, #1f2536 0, #1f2536 1px, transparent 0, transparent 40px);
+            border: 2px solid var(--primary-gold);
+            border-radius: 6px;
+            overflow: hidden;
+            font-family: var(--font-body);
+            position: relative;
+        }
+        
+        /* 战报角落装饰 */
+        .share-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, transparent 50%, rgba(207, 170, 104, 0.1) 50%);
+            pointer-events: none;
+        }
+
+        /* Header */
+        .sc-header {
+            background: linear-gradient(90deg, #080a10 0%, #1c2130 100%);
+            padding: 24px 30px;
+            border-bottom: 1px solid var(--primary-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .sc-title h2 { 
+            margin: 0; 
+            color: #fff; 
+            font-family: var(--font-head);
+            font-style: italic; 
+            font-weight: 700;
+            font-size: 2.2rem; 
+            line-height: 1; 
+            letter-spacing: -1px;
+        }
+        .sc-title span { color: var(--primary-gold); }
+        
+        .sc-meta { text-align: right; }
+        .sc-game-id { 
+            color: var(--primary-gold); 
+            font-family: var(--font-head);
+            font-weight: 700; 
+            font-size: 1.4rem; 
+            letter-spacing: 1px; 
+            text-shadow: 0 0 10px rgba(207, 170, 104, 0.4);
+        }
+        .sc-date { 
+            color: var(--text-gray); 
+            font-family: var(--font-num); 
+            font-size: 0.75rem; 
+            margin-top: 4px; 
+            letter-spacing: 1px;
+        }
+
+        /* Labels - Strictly Aligned */
+        .sc-labels {
+            display: flex;
+            align-items: center;
+            padding: 10px 30px 6px 30px;
+            background: rgba(255,255,255,0.02);
+            font-family: var(--font-head);
+            font-size: 0.65rem;
+            color: #5d6680;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        /* 定义宽度常量 */
+        /* Rank Badge: 50px + 15px Gap = 65px Offset */
+        .lbl-left { flex: 1; padding-left: 65px; } 
+        .lbl-right { 
+            display: flex; 
+            width: 255px; /* Fixed width area for data */
+            justify-content: flex-end; 
+            gap: 15px; 
+        }
+        .lbl-col { width: 75px; text-align: right; }
+        .lbl-col.highlight { color: var(--primary-gold); opacity: 0.9; }
+
+        /* Rows */
+        .sc-body { padding: 8px 30px 30px 30px; }
+
+        .sc-row {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+            margin-bottom: 10px;
+            height: 60px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+        }
+
+        /* Rank Badge */
+        .sc-rank-badge {
+            width: 50px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 1.8rem;
+            font-style: italic;
+            margin-right: 15px;
+            color: rgba(0,0,0,0.4);
+            background: #2a2f40;
+            z-index: 2;
+        }
+        
+        .sc-row.r1 { 
+            background: linear-gradient(90deg, rgba(207, 170, 104, 0.15) 0%, transparent 100%); 
+            border-color: rgba(207, 170, 104, 0.4); 
+            box-shadow: inset 0 0 20px rgba(207, 170, 104, 0.05);
+        }
+        .sc-row.r1 .sc-rank-badge { background: var(--rank-1-bg); color: #1a1a1a; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
+        .sc-row.r2 .sc-rank-badge { background: var(--rank-2-bg); color: #1a1a1a; }
+        .sc-row.r3 .sc-rank-badge { background: var(--rank-3-bg); color: #1a1a1a; }
+        .sc-row.r4 .sc-rank-badge { background: var(--rank-4-bg); color: #fff; }
+
+        /* Name */
+        .sc-name {
+            flex: 1;
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Data Group - Matches lbl-right */
+        .sc-data-group {
+            display: flex;
+            width: 255px;
+            justify-content: flex-end;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .sc-val {
+            width: 75px; 
+            font-family: var(--font-num);
+            text-align: right;
+        }
+        .sc-score { color: var(--text-gray); font-size: 0.95rem; font-weight: 400;}
+        .sc-pt { font-weight: 800; font-size: 1.2rem; }
+        .sc-total { 
+            font-size: 1rem; 
+            font-weight: 700;
+            color: var(--primary-gold); 
+            border-left: 1px solid #333; 
+            padding-left: 5px; /* Visual balance */
+        }
+
+        .val-pos { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.3); }
+        .val-neg { color: #6a768f; }
+
+        .sc-footer {
+            background: #000;
+            color: #444;
+            text-align: center;
+            font-size: 0.6rem;
+            padding: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-family: var(--font-head);
+        }
+
+        /* Close Button */
+        .close-hint { 
+            color: #888; 
+            margin-top: 10px; 
+            font-size: 0.8rem; 
+            font-family: var(--font-body);
+            opacity: 0.7;
+        }
+        .close-btn { 
+            width: auto; 
+            background: transparent; 
+            border: 1px solid rgba(255,255,255,0.3); 
+            color: rgba(255,255,255,0.7); 
+            margin-top: 15px; 
+            padding: 8px 30px;
+            font-size: 0.75rem;
+            border-radius: 50px;
+            transition: 0.2s;
+            font-family: var(--font-head);
+            letter-spacing: 1px;
+        }
+        .close-btn:hover { 
+            border-color: #fff; 
+            color: #fff; 
+            background: rgba(255,255,255,0.1); 
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>801.LEAGUE</h1>
+        <div class="meta-row">
+            <div class="subtitle">OFFICIAL MATCH RECORDER</div>
+            <div class="version-badge">v0.5</div>
+        </div>
+    </div>
+
+    <div class="input-card">
+        <div class="player-row">
+            <div class="wind-label">东</div>
+            <input type="text" id="p1-name" placeholder="ID (东家)" list="history-names" autocomplete="off">
+            <input type="number" id="p1-score" placeholder="得分" oninput="checkSum()" step="100" autocomplete="off">
+        </div>
+        <div class="player-row">
+            <div class="wind-label">南</div>
+            <input type="text" id="p2-name" placeholder="ID (南家)" list="history-names" autocomplete="off">
+            <input type="number" id="p2-score" placeholder="得分" oninput="checkSum()" step="100" autocomplete="off">
+        </div>
+        <div class="player-row">
+            <div class="wind-label">西</div>
+            <input type="text" id="p3-name" placeholder="ID (西家)" list="history-names" autocomplete="off">
+            <input type="number" id="p3-score" placeholder="得分" oninput="checkSum()" step="100" autocomplete="off">
+        </div>
+        <div class="player-row">
+            <div class="wind-label">北</div>
+            <input type="text" id="p4-name" placeholder="ID (北家)" list="history-names" autocomplete="off">
+            <input type="number" id="p4-score" placeholder="得分" oninput="checkSum()" step="100" autocomplete="off">
+        </div>
+        
+        <div id="status-bar" class="status-bar status-ok">等待输入分数...</div>
+
+        <div class="btn-group">
+            <button class="btn-submit" onclick="submitMatch()">确认记录并生成战报</button>
+            <button class="btn-reset" onclick="resetInputs()">重置</button>
+        </div>
+        <datalist id="history-names"></datalist>
+    </div>
+
+    <div class="section-title">
+        <span>🏆 SEASON RANKING</span>
+        <button style="width: auto; padding: 6px 12px; font-size: 0.7rem; background: #232936; border:1px solid #333; color:#777; border-radius:4px; cursor:pointer;" onclick="clearAllData()">🗑️ 清空数据</button>
+    </div>
+    <table id="leaderboard-table">
+        <thead>
+            <tr>
+                <th style="width:15%">Rank</th>
+                <th style="text-align:left">Player</th>
+                <th>Games</th>
+                <th>Total PT</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="section-title">
+        <span>📜 MATCH HISTORY</span>
+    </div>
+    <table id="history-table">
+        <thead>
+            <tr>
+                <th>Game</th>
+                <th>1st</th>
+                <th>2nd</th>
+                <th>3rd</th>
+                <th>4th</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div style="font-size:0.75rem; color:#555; text-align:center; margin-top:8px; font-family:var(--font-body);">点击历史记录行可查看详细数据</div>
+
+    <div class="main-footer">本系统由黄埔鳄霸801开发，仅供801内部使用</div>
+
+    <div class="modal-overlay" id="share-modal">
+        <div class="share-card-container">
+            <div class="share-card">
+                <div class="sc-header">
+                    <div class="sc-title">
+                        <h2>801<span>.LEAGUE</span></h2>
+                    </div>
+                    <div class="sc-meta">
+                        <div class="sc-game-id" id="share-game-id">GAME #00</div>
+                        <div class="sc-date" id="share-date">--.--.--</div>
+                    </div>
+                </div>
+                
+                <div class="sc-labels">
+                    <div class="lbl-left">PLAYER</div>
+                    <div class="lbl-right">
+                        <div class="lbl-col">SCORE</div>
+                        <div class="lbl-col">GAME PT</div>
+                        <div class="lbl-col highlight">TOTAL</div>
+                    </div>
+                </div>
+
+                <div class="sc-body" id="share-content">
+                    </div>
+
+                <div class="sc-footer">
+                    Competitive Mahjong Recording System
+                </div>
+            </div>
+        </div>
+        <div class="close-hint">请直接截图上方卡片</div>
+        <button class="close-btn" onclick="closeModal()">关闭页面</button>
+    </div>
+
+    <script>
+        const RULE = {
+            base: 30000,
+            uma: [30, 10, -10, -30],
+            oka: 20
+        };
+
+        let appData = { matches: [], players: {} };
+
+        window.onload = function() {
+            loadData();
+            updateUI();
+            checkSum();
+        };
+
+        function loadData() {
+            const saved = localStorage.getItem('801_league_data_v5');
+            if (saved) appData = JSON.parse(saved);
+        }
+
+        function saveData() {
+            localStorage.setItem('801_league_data_v5', JSON.stringify(appData));
+        }
+
+        function checkSum() {
+            const s1 = Number(document.getElementById('p1-score').value) || 0;
+            const s2 = Number(document.getElementById('p2-score').value) || 0;
+            const s3 = Number(document.getElementById('p3-score').value) || 0;
+            const s4 = Number(document.getElementById('p4-score').value) || 0;
+            const sum = s1 + s2 + s3 + s4;
+            const diff = 100000 - sum;
+            
+            const el = document.getElementById('status-bar');
+            
+            if (sum === 0 && s1===0 && s2===0 && s3===0 && s4===0) {
+                el.innerText = "等待输入分数...";
+                el.className = "status-bar";
+                return false;
+            }
+
+            if (diff === 0) {
+                el.innerText = "✅ 校验通过 (100,000)";
+                el.className = "status-bar status-ok";
+                return true;
+            } else if (diff > 0) {
+                el.innerText = `⚠️ 还差 ${diff} 分`;
+                el.className = "status-bar status-warn";
+                return false;
+            } else {
+                el.innerText = `❌ 多出 ${Math.abs(diff)} 分`;
+                el.className = "status-bar status-error";
+                return false;
+            }
+        }
+
+        function submitMatch() {
+            // 1. 校验合计数
+            if (!checkSum()) {
+                alert("分数总和必须为 100,000 点！");
+                return;
+            }
+
+            const inputs = [
+                { id:'p1', w:0 }, { id:'p2', w:1 }, { id:'p3', w:2 }, { id:'p4', w:3 }
+            ];
+            
+            let currentResults = [];
+            let scores = []; // 用于校验唯一性
+            
+            for(let item of inputs) {
+                const name = document.getElementById(item.id + '-name').value.trim();
+                const scoreRaw = document.getElementById(item.id + '-score').value;
+                const score = Number(scoreRaw);
+                
+                if(!name) { alert("请输入完整ID"); return; }
+                
+                // 2. 校验100倍数
+                if (score % 100 !== 0) {
+                    alert(`错误：玩家 ${name} 的分数 ${score} 不是100的倍数。`);
+                    return;
+                }
+
+                currentResults.push({ name, score, wind: item.w });
+                scores.push(score);
+            }
+
+            // 3. 校验重复分数
+            const uniqueScores = new Set(scores);
+            if (uniqueScores.size !== scores.length) {
+                alert("错误：检测到相同的分数！\n请确保每位玩家的分数不完全相同（根据规则不能有同分）。");
+                return;
+            }
+
+            // 排序: 分数降序
+            currentResults.sort((a, b) => b.score - a.score);
+
+            // 计算当局PT 并 更新总分
+            currentResults.forEach((p, index) => {
+                let pt = (p.score - RULE.base) / 1000;
+                pt += RULE.uma[index];
+                if (index === 0) pt += RULE.oka;
+                
+                // 当局PT
+                p.gamePt = Math.round(pt * 10) / 10;
+                p.rank = index + 1;
+
+                // 更新全局玩家数据
+                if (!appData.players[p.name]) {
+                    appData.players[p.name] = { pt: 0, count: 0 };
+                }
+                appData.players[p.name].pt = Math.round((appData.players[p.name].pt + p.gamePt) * 10) / 10;
+                appData.players[p.name].count += 1;
+
+                // 记录本局结束后的总分快照
+                p.totalPtAfter = appData.players[p.name].pt;
+            });
+
+            // 存入比赛历史
+            const matchId = appData.matches.length + 1;
+            appData.matches.push({
+                id: matchId,
+                timestamp: new Date().toISOString(),
+                results: currentResults
+            });
+
+            saveData();
+            updateUI();
+            showShareModal(currentResults, matchId);
+            resetInputs(false);
+        }
+
+        function updateUI() {
+            // 更新输入框自动完成
+            const dataList = document.getElementById('history-names');
+            dataList.innerHTML = '';
+            Object.keys(appData.players).forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                dataList.appendChild(opt);
+            });
+
+            // 更新排行榜
+            const tbody = document.querySelector('#leaderboard-table tbody');
+            tbody.innerHTML = '';
+            const sortedPlayers = Object.entries(appData.players)
+                .map(([name, data]) => ({ name, ...data }))
+                .sort((a, b) => b.pt - a.pt);
+
+            sortedPlayers.forEach((p, i) => {
+                const tr = document.createElement('tr');
+                const ptStr = p.pt > 0 ? '+' + p.pt : p.pt;
+                const ptClass = p.pt >= 0 ? 'score-plus' : 'score-minus';
+                
+                tr.innerHTML = `
+                    <td style="color:${i<3 ? 'var(--primary-gold)' : '#888'}; font-weight:${i<3?'bold':'normal'}; font-family:var(--font-head); font-size:${i<3?'1rem':'0.9rem'}">${i+1}</td>
+                    <td style="text-align:left; font-weight:bold; color:#fff">${p.name}</td>
+                    <td>${p.count}</td>
+                    <td class="${ptClass}" style="font-weight:bold">${ptStr}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 更新历史记录
+            const hbody = document.querySelector('#history-table tbody');
+            hbody.innerHTML = '';
+            [...appData.matches].reverse().forEach(m => {
+                const trMain = document.createElement('tr');
+                trMain.className = 'history-row';
+                trMain.onclick = () => toggleHistoryDetail(m.id);
+                const r1 = m.results[0];
+                
+                trMain.innerHTML = `
+                    <td style="color:var(--primary-gold); font-family:var(--font-num)">#${m.id}</td>
+                    <td style="font-weight:bold; color:#fff">${r1.name}</td>
+                    <td>${m.results[1].name}</td>
+                    <td>${m.results[2].name}</td>
+                    <td>${m.results[3].name}</td>
+                `;
+                hbody.appendChild(trMain);
+
+                const trDetail = document.createElement('tr');
+                trDetail.className = 'history-detail-row';
+                trDetail.id = `detail-${m.id}`;
+                
+                let detailsHTML = '<div class="detail-grid">';
+                m.results.forEach(p => {
+                    const ptStr = p.gamePt > 0 ? '+' + p.gamePt : p.gamePt;
+                    const ptColor = p.gamePt >= 0 ? '#ff4d4d' : '#4dff88';
+                    detailsHTML += `
+                        <div class="detail-item">
+                            <span class="d-rank">${p.rank}</span>
+                            <span class="d-name">${p.name}</span>
+                            <span class="d-pt" style="color:${ptColor}">${ptStr}</span>
+                        </div>
+                    `;
+                });
+                detailsHTML += '</div>';
+                
+                trDetail.innerHTML = `<td colspan="5" style="padding:0; border:none;">${detailsHTML}</td>`;
+                hbody.appendChild(trDetail);
+            });
+        }
+
+        function toggleHistoryDetail(id) {
+            const row = document.getElementById(`detail-${id}`);
+            if(row.classList.contains('show')) {
+                row.classList.remove('show');
+            } else {
+                document.querySelectorAll('.history-detail-row').forEach(el => el.classList.remove('show'));
+                row.classList.add('show');
+            }
+        }
+
+        function showShareModal(results, gameId) {
+            const modal = document.getElementById('share-modal');
+            const content = document.getElementById('share-content');
+            
+            document.getElementById('share-game-id').innerText = `GAME #${String(gameId).padStart(2, '0')}`;
+            const now = new Date();
+            document.getElementById('share-date').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+
+            content.innerHTML = '';
+            
+            results.forEach(p => {
+                const row = document.createElement('div');
+                row.className = `sc-row r${p.rank}`;
+                
+                const ptStr = p.gamePt > 0 ? '+' + p.gamePt.toFixed(1) : p.gamePt.toFixed(1);
+                const ptClass = p.gamePt >= 0 ? 'val-pos' : 'val-neg';
+                
+                let totalStr = '-';
+                if(p.totalPtAfter !== undefined) {
+                    totalStr = p.totalPtAfter > 0 ? '+' + p.totalPtAfter.toFixed(1) : p.totalPtAfter.toFixed(1);
+                }
+
+                row.innerHTML = `
+                    <div class="sc-rank-badge">${p.rank}</div>
+                    <div class="sc-name">${p.name}</div>
+                    <div class="sc-data-group">
+                        <div class="sc-val sc-score">${p.score}</div>
+                        <div class="sc-val sc-pt ${ptClass}">${ptStr}</div>
+                        <div class="sc-val sc-total">${totalStr}</div>
+                    </div>
+                `;
+                content.appendChild(row);
+            });
+
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('share-modal').style.display = 'none';
+        }
+
+        function resetInputs(clearNames = true) {
+            if(clearNames) {
+                ['p1-name', 'p2-name', 'p3-name', 'p4-name'].forEach(id => document.getElementById(id).value = '');
+            }
+            ['p1-score', 'p2-score', 'p3-score', 'p4-score'].forEach(id => document.getElementById(id).value = '');
+            checkSum();
+        }
+
+        function clearAllData() {
+            if(confirm("⚠️ 危险操作\n\n确定要永久删除所有比赛记录吗？数据删除后无法恢复。")) {
+                localStorage.removeItem('801_league_data_v5');
+                appData = { matches: [], players: {} };
+                updateUI();
+            }
+        }
+    </script>
+</body>
+</html>
