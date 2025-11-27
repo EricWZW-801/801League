@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>801.LEAGUE 赛事系统 v0.61</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #080a10;
+            --panel-bg: #11141d;
+            --panel-border: #232936;
+            --primary-gold: #cfaa68;
+            --primary-gold-dim: #8a7346;
+            --text-white: #ffffff;
+            --text-gray: #7d859e;
+            --rank-1-bg: #cfaa68;
+            --rank-2-bg: #8b9bb4;
+            --rank-3-bg: #a05e46;
+            --rank-4-bg: #4a5568;
+            --font-head: 'Oswald', sans-serif;
+            --font-num: 'JetBrains Mono', monospace;
+            --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 0%, #1a1f2e 0%, transparent 70%);
+            color: var(--text-white);
+            margin: 0;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Header --- */
+        .header { text-align: center; margin-bottom: 25px; position: relative; padding-bottom: 15px; width: 100%; }
+        .header::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 3px; background: var(--primary-gold); box-shadow: 0 0 10px var(--primary-gold-dim);
+        }
+        .header h1 { 
+            margin: 0; font-family: var(--font-head); font-style: italic; font-weight: 700; 
+            font-size: 2.5rem; letter-spacing: 1px; text-transform: uppercase;
+            background: linear-gradient(180deg, #fff 0%, #ccc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .header .meta-row { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 5px; }
+        .subtitle { color: var(--primary-gold); font-family: var(--font-head); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; }
+        .version-badge {
+            background: rgba(207, 170, 104, 0.15); border: 1px solid var(--primary-gold-dim);
+            color: var(--primary-gold); font-family: var(--font-num); font-size: 0.7rem;
+            padding: 2px 6px; border-radius: 4px; font-weight: bold;
+        }
+
+        /* --- Input Card --- */
+        .input-card {
+            background: var(--panel-bg); padding: 25px 20px; border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6); width: 100%; max-width: 550px;
+            margin-bottom: 30px; border: 1px solid var(--panel-border); position: relative; overflow: hidden;
+            box-sizing: border-box;
+        }
+        .input-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-gold), transparent); opacity: 0.5;
+        }
+
+        .player-row { display: grid; grid-template-columns: 30px 1.5fr 1fr; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .wind-label { font-family: var(--font-head); font-weight: 500; color: var(--primary-gold); text-align: center; font-size: 1.2rem; }
+        
+        input {
+            background: #0b0e14; border: 1px solid #2a2f40; color: #fff; padding: 12px;
+            border-radius: 8px; font-size: 1rem; width: 100%; box-sizing: border-box;
+            transition: all 0.3s; font-family: var(--font-body);
+        }
+        input:focus { outline: none; border-color: var(--primary-gold); background: #12151f; box-shadow: 0 0 15px rgba(207, 170, 104, 0.15); }
+        input[type="number"] { font-family: var(--font-num); font-weight: 700; letter-spacing: 1px; }
+
+        .status-bar {
+            text-align: center; font-size: 0.85rem; margin: 20px 0; padding: 10px;
+            border-radius: 8px; font-weight: bold; font-family: var(--font-num);
+            background: rgba(0,0,0,0.3); border: 1px solid transparent;
+        }
+        .status-ok { color: #4dff88; border-color: rgba(77, 255, 136, 0.2); background: rgba(77, 255, 136, 0.05); }
+        .status-warn { color: #ffcc00; border-color: rgba(255, 204, 0, 0.2); background: rgba(255, 204, 0, 0.05); }
+        .status-error { color: #ff4d4d; border-color: rgba(255, 77, 77, 0.2); background: rgba(255, 77, 77, 0.05); }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 25px; }
+        button {
+            flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;
+            text-transform: uppercase; font-family: var(--font-head); font-size: 0.95rem; letter-spacing: 1px;
+            transition: 0.2s;
+        }
+        .btn-submit { background: linear-gradient(135deg, #cfaa68 0%, #aa8949 100%); color: #1a1a1a; box-shadow: 0 4px 20px rgba(207, 170, 104, 0.25); }
+        .btn-submit:active { transform: translateY(1px); }
+        .btn-reset { background: #232936; color: #7d859e; border: 1px solid #2a2f40; }
+
+        /* --- Tables (Mobile Fix: Force Dark Background) --- */
+        .section-title {
+            width: 100%; max-width: 600px; margin: 30px 0 10px 0; display: flex; justify-content: space-between; align-items: center;
+        }
+        .section-title span {
+            font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; color: var(--text-white);
+            border-left: 4px solid var(--primary-gold); padding-left: 10px; letter-spacing: 1px;
+        }
+        
+        .action-btn {
+            padding: 5px 10px; font-size: 0.7rem; border-radius: 4px; border: 1px solid #333;
+            cursor: pointer; background: #1a1f2e; color: #888; font-family: var(--font-body);
+        }
+        .btn-danger { color: #ff6b6b; border-color: #522; }
+        .btn-warn { color: #feca57; border-color: #542; margin-right: 5px; }
+
+        /* 修复：强制指定表格背景颜色，防止手机端变白 */
+        table {
+            width: 100%; max-width: 600px; border-collapse: separate; border-spacing: 0;
+            background-color: var(--panel-bg) !important; /* Force Dark */
+            border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--panel-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: #fff !important; /* Force White Text */
+        }
+        th { 
+            background-color: #1a1f2e !important; /* Force Dark Header */
+            color: var(--text-gray) !important; 
+            padding: 12px; font-size: 0.7rem; font-family: var(--font-head); letter-spacing: 1px; 
+            border-bottom: 1px solid var(--panel-border); 
+        }
+        td { 
+            background-color: var(--panel-bg) !important; /* Force Cell Background */
+            color: #fff !important; 
+            padding: 12px; text-align: center; border-bottom: 1px solid #232936; 
+            font-family: var(--font-num); font-size: 0.85rem; 
+        }
+        
+        .score-plus { color: #fff !important; } .score-minus { color: #6a768f !important; }
+
+        /* History Detail */
+        .history-row { cursor: pointer; transition: background 0.2s; }
+        .history-row:hover td { background-color: #1f2536 !important; }
+        .history-detail-row { display: none; background-color: #0c0e14 !important; }
+        .history-detail-row.show { display: table-row; }
+        
+        .detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; }
+        .detail-item {
+            display: flex; flex-direction: column; align-items: center; background: #161b26;
+            padding: 8px 2px; border-radius: 6px; border: 1px solid #232936;
+        }
+        .d-rank { font-family: var(--font-head); font-weight: bold; color: var(--primary-gold); font-size: 0.9rem;}
+        .d-name { color: #aaa; font-size: 0.75rem; margin: 3px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;}
+        .d-pt { font-family: var(--font-num); font-weight: bold; font-size: 0.8rem; }
+
+        .main-footer { margin-top: 50px; margin-bottom: 20px; color: #3c4357; font-size: 0.7rem; text-align: center; font-family: var(--font-body); }
+
+        /* =========================================
+           战报卡片 (Grid Layout Fix V0.61)
+           ========================================= */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center;
+            flex-direction: column; padding: 20px; overflow-y: auto; backdrop-filter: blur(5px);
+        }
+
+        .share-card-wrapper {
+            margin-bottom: 20px;
+            box-shadow: 0 0 60px rgba(0,0,0,0.8);
+            max-width: 100%;
+        }
+
+        .share-card {
+            width: 480px; /* 电脑端标准宽度 */
+            max-width: 100%;
+            background: #12151f;
+            background-image: 
+                linear-gradient(rgba(18, 21, 31, 0.97), rgba(18, 21, 31, 0.97)),
+                repeating-linear-gradient(45deg, #1f2536 0, #1f2536 1px, transparent 0, transparent 40px);
+            border: 2px solid var(--primary-gold);
+            border-radius: 6px; overflow: hidden; font-family: var(--font-body); position: relative;
+        }
+
+        .sc-header {
+            background: linear-gradient(90deg, #080a10 0%, #1c2130 100%);
+            display: flex; justify-content: space-between; align-items: flex-end;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--primary-gold);
+        }
+        .sc-title h2 { margin: 0; color: #fff; font-family: var(--font-head); font-style: italic; font-weight: 700; line-height: 1; letter-spacing: -1px; font-size: 2.2rem; }
+        .sc-title span { color: var(--primary-gold); }
+        .sc-meta { text-align: right; }
+        .sc-game-id { color: var(--primary-gold); font-family: var(--font-head); font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 10px rgba(207, 170, 104, 0.4); font-size: 1.4rem; }
+        .sc-date { color: var(--text-gray); font-family: var(--font-num); font-size: 0.75rem; margin-top: 4px; }
+
+        /* --- 新的 Grid 排版系统 --- */
+        /* 定义 5列 网格： Rank | Name | Score | GamePT | Total */
+        /* 列宽分配：Rank(60px) Name(自动填充) Score(70px) PT(70px) Total(75px) */
+        
+        .sc-labels {
+            display: grid; 
+            /* Grid definition */
+            grid-template-columns: 60px 1fr 70px 75px 75px; 
+            gap: 10px;
+            align-items: center; 
+            padding: 10px 20px 6px 20px;
+            background: rgba(255,255,255,0.02);
+            font-family: var(--font-head); font-size: 0.65rem; color: #5d6680; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;
+        }
+        
+        .sc-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 70px 75px 75px;
+            gap: 10px;
+            align-items: center; 
+            background: rgba(255,255,255,0.03); margin-bottom: 8px; margin-left:20px; margin-right:20px; /* Side margins */
+            border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);
+            height: 56px;
+        }
+
+        /* 标签对齐 */
+        .lbl-center { text-align: center; }
+        .lbl-left { text-align: left; padding-left: 10px; }
+        .lbl-right { text-align: right; }
+        .lbl-right.highlight { color: var(--primary-gold); opacity: 0.9; }
+
+        /* 内容样式 */
+        .sc-rank-badge {
+            height: 100%; display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-head); font-weight: 700; font-style: italic; font-size: 1.6rem;
+            color: rgba(0,0,0,0.4); background: #2a2f40;
+        }
+        
+        .sc-row.r1 { background: linear-gradient(90deg, rgba(207, 170, 104, 0.15) 0%, transparent 100%); border-color: rgba(207, 170, 104, 0.4); }
+        .sc-row.r1 .sc-rank-badge { background: var(--rank-1-bg); color: #1a1a1a; }
+        .sc-row.r2 .sc-rank-badge { background: var(--rank-2-bg); color: #1a1a1a; }
+        .sc-row.r3 .sc-rank-badge { background: var(--rank-3-bg); color: #1a1a1a; }
+        .sc-row.r4 .sc-rank-badge { background: var(--rank-4-bg); color: #fff; }
+
+        .sc-name {
+            font-family: var(--font-body); font-weight: 700; color: #fff; font-size: 1.2rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px;
+        }
+
+        .sc-val { font-family: var(--font-num); text-align: right; }
+        .sc-score { color: var(--text-gray); font-weight: 400; font-size: 0.9rem; }
+        .sc-pt { font-weight: 800; font-size: 1.15rem; }
+        .sc-total { font-weight: 700; color: var(--primary-gold); border-left: 1px solid #333; font-size: 0.95rem; }
+
+        .val-pos { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.3); }
+        .val-neg { color: #6a768f; }
+
+        .sc-footer { background: #000; color: #444; text-align: center; font-size: 0.6rem; padding: 10px; letter-spacing: 3px; text-transform: uppercase; font-family: var(--font-head); }
+
+        /* Mobile Responsive Grid Adjustments */
+        @media screen and (max-width: 500px) {
+            .share-card { width: 340px; }
+            .sc-header { padding: 15px; }
+            .sc-title h2 { font-size: 1.8rem; }
+            .sc-game-id { font-size: 1.1rem; }
+            
+            /* Adjust Grid Columns for Mobile */
+            .sc-labels, .sc-row {
+                grid-template-columns: 40px 1fr 60px 60px 60px; /* Slightly tighter */
+                gap: 5px; padding-left: 10px; padding-right: 10px; margin-left: 10px; margin-right: 10px;
+            }
+            
+            .sc-rank-badge { font-size: 1.3rem; }
+            .sc-name { font-size: 1rem; padding-left: 5px; }
+            .sc-score { font-size: 0.8rem; }
+            .sc-pt { font-size: 0.95rem; }
+            .sc-total { font-size: 0.8rem; }
+            .sc-row { height: 48px; }
+        }
+
+        /* Buttons */
+        .modal-btns { margin-top: 15px; display: flex; gap: 10px; flex-direction: column; align-items: center; }
+        .btn-download {
+            background: var(--primary-gold); color: #000; padding: 10px 30px; border-radius: 50px;
+            font-weight: bold; font-family: var(--font-head); text-transform: uppercase; letter-spacing: 1px;
+            border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(207, 170, 104, 0.3);
+        }
+        .btn-close {
+            background: transparent; border: 1px solid #555; color: #aaa; padding: 8px 30px;
+            border-radius: 50px; cursor: pointer; font-size: 0.8rem;
+        }
+
+        #img-preview-area { margin-top: 15px; text-align: center; display: none; }
+        #img-preview-area img { max-width: 100%; border: 1px solid #fff; border-radius: 4px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        .save-tip { color: #4dff88; font-size: 0.8rem; margin-bottom: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>801.LEAGUE</h1>
+        <div class="meta-row">
+            <div class="subtitle">OFFICIAL MATCH RECORDER</div>
+            <div class="version-badge">v0.61</div>
+        </div>
+    </div>
+
+    <div class="input-card">
+        <div class="player-row">
+            <div class="wind-label">东</div>
+            <input type="text" id="p1-name" placeholder="ID" list="history-names" autocomplete="off">
+            <input type="number" id="p1-score" placeholder="得分" oninput="checkSum()" step="100" autocomplete="off">
+        </div>
+        <div class="player-row">
+            <div class="wind-label">南</div>
+            <input type="text" id="p2-name" placeholder="ID" list="history-names" autocomplete="off">
+            <input type="number" id="p2-score" placeholder="得分" oninput="checkSum()" step="100" autocomplete="off">
+        </div>
+        <div class="player-row">
+            <div class="wind-label">西</div>
+            <input type="text" id="p3-name" placeholder="ID" list="history-names" autocomplete="off">
+            <input type="number" id="p3-score" placeholder="得分" oninput="checkSum()" step="100" autocomplete="off">
+        </div>
+        <div class="player-row">
+            <div class="wind-label">北</div>
+            <input type="text" id="p4-name" placeholder="ID" list="history-names" autocomplete="off">
+            <input type="number" id="p4-score" placeholder="得分" oninput="checkSum()" step="100" autocomplete="off">
+        </div>
+        
+        <div id="status-bar" class="status-bar status-ok">等待输入分数...</div>
+
+        <div class="btn-group">
+            <button class="btn-submit" onclick="submitMatch()">记录 & 生成战报</button>
+            <button class="btn-reset" onclick="resetInputs()">重置</button>
+        </div>
+        <datalist id="history-names"></datalist>
+    </div>
+
+    <div class="section-title">
+        <span>🏆 SEASON RANKING</span>
+        <button class="action-btn btn-danger" onclick="clearAllData()">🗑️ 清空所有</button>
+    </div>
+    <table id="leaderboard-table">
+        <thead>
+            <tr>
+                <th style="width:15%">Rank</th>
+                <th style="text-align:left">Player</th>
+                <th>G</th>
+                <th>Total PT</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="section-title">
+        <span>📜 MATCH HISTORY</span>
+        <button class="action-btn btn-warn" id="undo-btn" onclick="undoLastMatch()" style="display:none;">↩️ 撤销上一局</button>
+    </div>
+    <table id="history-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>1st</th>
+                <th>2nd</th>
+                <th>3rd</th>
+                <th>4th</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div style="font-size:0.75rem; color:#555; text-align:center; margin-top:8px; font-family:var(--font-body);">点击记录可查看详情</div>
+
+    <div class="main-footer">本系统由黄埔鳄霸801开发，仅供801内部使用</div>
+
+    <div class="modal-overlay" id="share-modal">
+        <div class="share-card-wrapper" id="capture-target">
+            <div class="share-card">
+                <div class="sc-header">
+                    <div class="sc-title">
+                        <h2>801<span>.LEAGUE</span></h2>
+                    </div>
+                    <div class="sc-meta">
+                        <div class="sc-game-id" id="share-game-id">GAME #00</div>
+                        <div class="sc-date" id="share-date">--.--.--</div>
+                    </div>
+                </div>
+                
+                <div class="sc-labels">
+                    <div class="lbl-center">#</div>
+                    <div class="lbl-left">PLAYER</div>
+                    <div class="lbl-right">SCORE</div>
+                    <div class="lbl-right">PT</div>
+                    <div class="lbl-right highlight">TOTAL</div>
+                </div>
+
+                <div class="sc-body" id="share-content">
+                    </div>
+
+                <div class="sc-footer">
+                    Competitive Mahjong Recording System
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-btns" id="modal-controls">
+            <button class="btn-download" onclick="downloadPoster()">📸 保存为图片</button>
+            <button class="btn-close" onclick="closeModal()">关闭</button>
+        </div>
+
+        <div id="img-preview-area">
+            <div class="save-tip">✅ 生成成功！请长按下方图片保存</div>
+        </div>
+    </div>
+
+    <script>
+        const RULE = {
+            base: 30000,
+            uma: [30, 10, -10, -30],
+            oka: 20
+        };
+
+        let appData = { matches: [], players: {} };
+
+        window.onload = function() {
+            loadData();
+            updateUI();
+            checkSum();
+        };
+
+        function loadData() {
+            const saved = localStorage.getItem('801_league_data_v6');
+            if (saved) appData = JSON.parse(saved);
+        }
+
+        function saveData() {
+            localStorage.setItem('801_league_data_v6', JSON.stringify(appData));
+        }
+
+        function checkSum() {
+            const s1 = Number(document.getElementById('p1-score').value) || 0;
+            const s2 = Number(document.getElementById('p2-score').value) || 0;
+            const s3 = Number(document.getElementById('p3-score').value) || 0;
+            const s4 = Number(document.getElementById('p4-score').value) || 0;
+            const sum = s1 + s2 + s3 + s4;
+            const diff = 100000 - sum;
+            
+            const el = document.getElementById('status-bar');
+            
+            if (sum === 0 && s1===0 && s2===0 && s3===0 && s4===0) {
+                el.innerText = "等待输入分数...";
+                el.className = "status-bar";
+                return false;
+            }
+
+            if (diff === 0) {
+                el.innerText = "✅ 校验通过 (100,000)";
+                el.className = "status-bar status-ok";
+                return true;
+            } else if (diff > 0) {
+                el.innerText = `⚠️ 还差 ${diff} 分`;
+                el.className = "status-bar status-warn";
+                return false;
+            } else {
+                el.innerText = `❌ 多出 ${Math.abs(diff)} 分`;
+                el.className = "status-bar status-error";
+                return false;
+            }
+        }
+
+        function submitMatch() {
+            if (!checkSum()) {
+                alert("分数总和必须为 100,000 点！");
+                return;
+            }
+
+            const inputs = [
+                { id:'p1', w:0 }, { id:'p2', w:1 }, { id:'p3', w:2 }, { id:'p4', w:3 }
+            ];
+            
+            let currentResults = [];
+            let scores = [];
+            
+            for(let item of inputs) {
+                const name = document.getElementById(item.id + '-name').value.trim();
+                const scoreRaw = document.getElementById(item.id + '-score').value;
+                const score = Number(scoreRaw);
+                
+                if(!name) { alert("请输入完整ID"); return; }
+                if (score % 100 !== 0) {
+                    alert(`错误：玩家 ${name} 的分数 ${score} 不是100的倍数。`);
+                    return;
+                }
+                currentResults.push({ name, score, wind: item.w });
+                scores.push(score);
+            }
+
+            const uniqueScores = new Set(scores);
+            if (uniqueScores.size !== scores.length) {
+                alert("错误：检测到相同的分数！请根据规则处理同分情况。");
+                return;
+            }
+
+            currentResults.sort((a, b) => b.score - a.score);
+
+            currentResults.forEach((p, index) => {
+                let pt = (p.score - RULE.base) / 1000;
+                pt += RULE.uma[index];
+                if (index === 0) pt += RULE.oka;
+                p.gamePt = Math.round(pt * 10) / 10;
+                p.rank = index + 1;
+
+                if (!appData.players[p.name]) {
+                    appData.players[p.name] = { pt: 0, count: 0 };
+                }
+                appData.players[p.name].pt = Math.round((appData.players[p.name].pt + p.gamePt) * 10) / 10;
+                appData.players[p.name].count += 1;
+                p.totalPtAfter = appData.players[p.name].pt;
+            });
+
+            const matchId = appData.matches.length + 1;
+            appData.matches.push({
+                id: matchId,
+                timestamp: new Date().toISOString(),
+                results: currentResults
+            });
+
+            saveData();
+            updateUI();
+            showShareModal(currentResults, matchId);
+            resetInputs(false);
+        }
+
+        function undoLastMatch() {
+            if (appData.matches.length === 0) return;
+            
+            if (!confirm("⚠️ 确定要撤销刚刚录入的这一局比赛吗？\n撤销后，选手的分数将回退到上一局的状态。")) {
+                return;
+            }
+
+            const lastMatch = appData.matches.pop(); 
+
+            lastMatch.results.forEach(p => {
+                if (appData.players[p.name]) {
+                    appData.players[p.name].pt = Math.round((appData.players[p.name].pt - p.gamePt) * 10) / 10;
+                    appData.players[p.name].count -= 1;
+                }
+            });
+
+            saveData();
+            updateUI();
+            alert("已撤销上一局记录。");
+        }
+
+        function updateUI() {
+            const undoBtn = document.getElementById('undo-btn');
+            undoBtn.style.display = appData.matches.length > 0 ? 'inline-block' : 'none';
+
+            const dataList = document.getElementById('history-names');
+            dataList.innerHTML = '';
+            Object.keys(appData.players).forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                dataList.appendChild(opt);
+            });
+
+            const tbody = document.querySelector('#leaderboard-table tbody');
+            tbody.innerHTML = '';
+            const sortedPlayers = Object.entries(appData.players)
+                .map(([name, data]) => ({ name, ...data }))
+                .sort((a, b) => b.pt - a.pt);
+
+            sortedPlayers.forEach((p, i) => {
+                const tr = document.createElement('tr');
+                const ptStr = p.pt > 0 ? '+' + p.pt : p.pt;
+                const ptClass = p.pt >= 0 ? 'score-plus' : 'score-minus';
+                
+                tr.innerHTML = `
+                    <td style="color:${i<3 ? 'var(--primary-gold)' : '#888'}; font-weight:${i<3?'bold':'normal'}; font-family:var(--font-head); font-size:${i<3?'0.9rem':'0.8rem'}">${i+1}</td>
+                    <td style="text-align:left; font-weight:bold; color:#fff">${p.name}</td>
+                    <td>${p.count}</td>
+                    <td class="${ptClass}" style="font-weight:bold">${ptStr}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const hbody = document.querySelector('#history-table tbody');
+            hbody.innerHTML = '';
+            [...appData.matches].reverse().forEach(m => {
+                const trMain = document.createElement('tr');
+                trMain.className = 'history-row';
+                trMain.onclick = () => toggleHistoryDetail(m.id);
+                const r1 = m.results[0];
+                
+                trMain.innerHTML = `
+                    <td style="color:var(--primary-gold); font-family:var(--font-num)">${m.id}</td>
+                    <td style="font-weight:bold; color:#fff">${r1.name}</td>
+                    <td>${m.results[1].name}</td>
+                    <td>${m.results[2].name}</td>
+                    <td>${m.results[3].name}</td>
+                `;
+                hbody.appendChild(trMain);
+
+                const trDetail = document.createElement('tr');
+                trDetail.className = 'history-detail-row';
+                trDetail.id = `detail-${m.id}`;
+                
+                let detailsHTML = '<div class="detail-grid">';
+                m.results.forEach(p => {
+                    const ptStr = p.gamePt > 0 ? '+' + p.gamePt : p.gamePt;
+                    const ptColor = p.gamePt >= 0 ? '#ff4d4d' : '#4dff88';
+                    detailsHTML += `
+                        <div class="detail-item">
+                            <span class="d-rank">${p.rank}</span>
+                            <span class="d-name">${p.name}</span>
+                            <span class="d-pt" style="color:${ptColor}">${ptStr}</span>
+                        </div>
+                    `;
+                });
+                detailsHTML += '</div>';
+                
+                trDetail.innerHTML = `<td colspan="5" style="padding:0; border:none;">${detailsHTML}</td>`;
+                hbody.appendChild(trDetail);
+            });
+        }
+
+        function toggleHistoryDetail(id) {
+            const row = document.getElementById(`detail-${id}`);
+            if(row.classList.contains('show')) {
+                row.classList.remove('show');
+            } else {
+                document.querySelectorAll('.history-detail-row').forEach(el => el.classList.remove('show'));
+                row.classList.add('show');
+            }
+        }
+
+        function showShareModal(results, gameId) {
+            const modal = document.getElementById('share-modal');
+            const content = document.getElementById('share-content');
+            
+            document.getElementById('capture-target').style.display = 'block';
+            document.getElementById('img-preview-area').style.display = 'none';
+            document.getElementById('img-preview-area').innerHTML = '<div class="save-tip">✅ 生成成功！请长按下方图片保存</div>';
+            document.getElementById('modal-controls').style.display = 'flex';
+
+            document.getElementById('share-game-id').innerText = `GAME #${String(gameId).padStart(2, '0')}`;
+            const now = new Date();
+            document.getElementById('share-date').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+
+            content.innerHTML = '';
+            results.forEach(p => {
+                const row = document.createElement('div');
+                row.className = `sc-row r${p.rank}`;
+                
+                const ptStr = p.gamePt > 0 ? '+' + p.gamePt.toFixed(1) : p.gamePt.toFixed(1);
+                const ptClass = p.gamePt >= 0 ? 'val-pos' : 'val-neg';
+                let totalStr = p.totalPtAfter !== undefined ? (p.totalPtAfter > 0 ? '+' + p.totalPtAfter.toFixed(1) : p.totalPtAfter.toFixed(1)) : '-';
+
+                row.innerHTML = `
+                    <div class="sc-rank-badge">${p.rank}</div>
+                    <div class="sc-name">${p.name}</div>
+                    <div class="sc-val sc-score">${p.score}</div>
+                    <div class="sc-val sc-pt ${ptClass}">${ptStr}</div>
+                    <div class="sc-val sc-total">${totalStr}</div>
+                `;
+                content.appendChild(row);
+            });
+            modal.style.display = 'flex';
+        }
+
+        function downloadPoster() {
+            const target = document.querySelector(".share-card");
+            const btn = document.querySelector(".btn-download");
+            btn.innerText = "⏳ 生成中...";
+            
+            html2canvas(target, {
+                backgroundColor: null, 
+                scale: 2, 
+                useCORS: true
+            }).then(canvas => {
+                btn.innerText = "📸 保存为图片";
+                
+                const imgData = canvas.toDataURL("image/png");
+
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (!isIOS) {
+                    const link = document.createElement('a');
+                    link.download = `801League_Game_${document.getElementById('share-game-id').innerText}.png`;
+                    link.href = imgData;
+                    link.click();
+                }
+
+                const img = document.createElement('img');
+                img.src = imgData;
+                const previewArea = document.getElementById('img-preview-area');
+                previewArea.appendChild(img);
+                
+                document.getElementById('capture-target').style.display = 'none';
+                document.getElementById('modal-controls').style.display = 'none';
+                previewArea.style.display = 'block';
+                
+                const closePreviewBtn = document.createElement('button');
+                closePreviewBtn.innerText = "关闭页面";
+                closePreviewBtn.className = "btn-close";
+                closePreviewBtn.style.marginTop = "20px";
+                closePreviewBtn.onclick = closeModal;
+                previewArea.appendChild(closePreviewBtn);
+
+            }).catch(err => {
+                console.error(err);
+                alert("生成图片失败，请重试");
+                btn.innerText = "📸 保存为图片";
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('share-modal').style.display = 'none';
+        }
+
+        function resetInputs(clearNames = true) {
+            if(clearNames) {
+                ['p1-name', 'p2-name', 'p3-name', 'p4-name'].forEach(id => document.getElementById(id).value = '');
+            }
+            ['p1-score', 'p2-score', 'p3-score', 'p4-score'].forEach(id => document.getElementById(id).value = '');
+            checkSum();
+        }
+
+        function clearAllData() {
+            if(confirm("⚠️ 危险操作\n\n确定要清空所有比赛数据和排行榜吗？\n此操作不可恢复！")) {
+                localStorage.removeItem('801_league_data_v6');
+                appData = { matches: [], players: {} };
+                updateUI();
+            }
+        }
+    </script>
+</body>
+</html>
