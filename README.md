@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>801.LEAGUE 赛事系统 v0.6</title>
+    <title>801.LEAGUE 赛事系统 v0.61</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
@@ -104,7 +104,7 @@
         .btn-submit:active { transform: translateY(1px); }
         .btn-reset { background: #232936; color: #7d859e; border: 1px solid #2a2f40; }
 
-        /* --- Sections --- */
+        /* --- Tables (Mobile Fix: Force Dark Background) --- */
         .section-title {
             width: 100%; max-width: 600px; margin: 30px 0 10px 0; display: flex; justify-content: space-between; align-items: center;
         }
@@ -113,7 +113,6 @@
             border-left: 4px solid var(--primary-gold); padding-left: 10px; letter-spacing: 1px;
         }
         
-        /* 操作小按钮 */
         .action-btn {
             padding: 5px 10px; font-size: 0.7rem; border-radius: 4px; border: 1px solid #333;
             cursor: pointer; background: #1a1f2e; color: #888; font-family: var(--font-body);
@@ -121,20 +120,35 @@
         .btn-danger { color: #ff6b6b; border-color: #522; }
         .btn-warn { color: #feca57; border-color: #542; margin-right: 5px; }
 
+        /* 修复：强制指定表格背景颜色，防止手机端变白 */
         table {
             width: 100%; max-width: 600px; border-collapse: separate; border-spacing: 0;
-            background: var(--panel-bg); border-radius: 12px; overflow: hidden;
+            background-color: var(--panel-bg) !important; /* Force Dark */
+            border-radius: 12px; overflow: hidden;
             border: 1px solid var(--panel-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: #fff !important; /* Force White Text */
         }
-        th { background: #1a1f2e; color: var(--text-gray); padding: 12px; font-size: 0.7rem; font-family: var(--font-head); letter-spacing: 1px; border-bottom: 1px solid var(--panel-border); }
-        td { padding: 12px; text-align: center; border-bottom: 1px solid #1f2536; font-family: var(--font-num); font-size: 0.85rem; }
-        .score-plus { color: #fff; } .score-minus { color: #6a768f; }
+        th { 
+            background-color: #1a1f2e !important; /* Force Dark Header */
+            color: var(--text-gray) !important; 
+            padding: 12px; font-size: 0.7rem; font-family: var(--font-head); letter-spacing: 1px; 
+            border-bottom: 1px solid var(--panel-border); 
+        }
+        td { 
+            background-color: var(--panel-bg) !important; /* Force Cell Background */
+            color: #fff !important; 
+            padding: 12px; text-align: center; border-bottom: 1px solid #232936; 
+            font-family: var(--font-num); font-size: 0.85rem; 
+        }
+        
+        .score-plus { color: #fff !important; } .score-minus { color: #6a768f !important; }
 
         /* History Detail */
         .history-row { cursor: pointer; transition: background 0.2s; }
-        .history-row:hover { background: #1f2536; }
-        .history-detail-row { display: none; background: #0c0e14; }
+        .history-row:hover td { background-color: #1f2536 !important; }
+        .history-detail-row { display: none; background-color: #0c0e14 !important; }
         .history-detail-row.show { display: table-row; }
+        
         .detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; }
         .detail-item {
             display: flex; flex-direction: column; align-items: center; background: #161b26;
@@ -147,7 +161,7 @@
         .main-footer { margin-top: 50px; margin-bottom: 20px; color: #3c4357; font-size: 0.7rem; text-align: center; font-family: var(--font-body); }
 
         /* =========================================
-           战报卡片 (Mobile Responsive V0.6)
+           战报卡片 (Grid Layout Fix V0.61)
            ========================================= */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -156,14 +170,13 @@
         }
 
         .share-card-wrapper {
-            /* 包装层，用于保存图片时的定位 */
             margin-bottom: 20px;
             box-shadow: 0 0 60px rgba(0,0,0,0.8);
             max-width: 100%;
         }
 
         .share-card {
-            width: 480px; /* 默认宽度 */
+            width: 480px; /* 电脑端标准宽度 */
             max-width: 100%;
             background: #12151f;
             background-image: 
@@ -173,56 +186,53 @@
             border-radius: 6px; overflow: hidden; font-family: var(--font-body); position: relative;
         }
 
-        /* 响应式调整：手机端样式 */
-        @media screen and (max-width: 500px) {
-            .share-card { width: 340px; } /* 缩小卡片宽度适应手机 */
-            .sc-header { padding: 15px 15px; }
-            .sc-title h2 { font-size: 1.8rem; }
-            .sc-game-id { font-size: 1.1rem; }
-            .sc-labels { padding: 10px 15px 5px 15px; }
-            .sc-body { padding: 5px 15px 20px 15px; }
-            
-            /* 调整列宽 */
-            .lbl-left { padding-left: 45px; } /* Badge width + gap */
-            .lbl-right { width: 190px; gap: 5px; }
-            .lbl-col { width: 60px; font-size: 0.6rem; }
-            
-            .sc-rank-badge { width: 35px; font-size: 1.4rem; margin-right: 10px; }
-            .sc-data-group { width: 190px; gap: 5px; }
-            .sc-val { width: 60px; font-size: 0.8rem; }
-            .sc-pt { font-size: 1rem; }
-            .sc-total { font-size: 0.85rem; }
-            .sc-name { font-size: 1rem; }
-            .sc-row { height: 50px; }
-        }
-
         .sc-header {
             background: linear-gradient(90deg, #080a10 0%, #1c2130 100%);
             display: flex; justify-content: space-between; align-items: flex-end;
-            /* Padding defined in media query */
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--primary-gold);
         }
-        .sc-title h2 { margin: 0; color: #fff; font-family: var(--font-head); font-style: italic; font-weight: 700; line-height: 1; letter-spacing: -1px; }
+        .sc-title h2 { margin: 0; color: #fff; font-family: var(--font-head); font-style: italic; font-weight: 700; line-height: 1; letter-spacing: -1px; font-size: 2.2rem; }
         .sc-title span { color: var(--primary-gold); }
         .sc-meta { text-align: right; }
-        .sc-game-id { color: var(--primary-gold); font-family: var(--font-head); font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 10px rgba(207, 170, 104, 0.4); }
-        .sc-date { color: var(--text-gray); font-family: var(--font-num); font-size: 0.7rem; margin-top: 4px; }
+        .sc-game-id { color: var(--primary-gold); font-family: var(--font-head); font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 10px rgba(207, 170, 104, 0.4); font-size: 1.4rem; }
+        .sc-date { color: var(--text-gray); font-family: var(--font-num); font-size: 0.75rem; margin-top: 4px; }
 
+        /* --- 新的 Grid 排版系统 --- */
+        /* 定义 5列 网格： Rank | Name | Score | GamePT | Total */
+        /* 列宽分配：Rank(60px) Name(自动填充) Score(70px) PT(70px) Total(75px) */
+        
         .sc-labels {
-            display: flex; align-items: center; background: rgba(255,255,255,0.02);
+            display: grid; 
+            /* Grid definition */
+            grid-template-columns: 60px 1fr 70px 75px 75px; 
+            gap: 10px;
+            align-items: center; 
+            padding: 10px 20px 6px 20px;
+            background: rgba(255,255,255,0.02);
             font-family: var(--font-head); font-size: 0.65rem; color: #5d6680; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;
         }
-        .lbl-left { flex: 1; /* Padding in media query */ }
-        .lbl-right { display: flex; justify-content: flex-end; /* Width in media query */ }
-        .lbl-col { text-align: right; }
-        .lbl-col.highlight { color: var(--primary-gold); opacity: 0.9; }
-
+        
         .sc-row {
-            display: flex; align-items: center; background: rgba(255,255,255,0.03); margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: 60px 1fr 70px 75px 75px;
+            gap: 10px;
+            align-items: center; 
+            background: rgba(255,255,255,0.03); margin-bottom: 8px; margin-left:20px; margin-right:20px; /* Side margins */
             border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);
+            height: 56px;
         }
+
+        /* 标签对齐 */
+        .lbl-center { text-align: center; }
+        .lbl-left { text-align: left; padding-left: 10px; }
+        .lbl-right { text-align: right; }
+        .lbl-right.highlight { color: var(--primary-gold); opacity: 0.9; }
+
+        /* 内容样式 */
         .sc-rank-badge {
             height: 100%; display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-head); font-weight: 700; font-style: italic;
+            font-family: var(--font-head); font-weight: 700; font-style: italic; font-size: 1.6rem;
             color: rgba(0,0,0,0.4); background: #2a2f40;
         }
         
@@ -233,22 +243,42 @@
         .sc-row.r4 .sc-rank-badge { background: var(--rank-4-bg); color: #fff; }
 
         .sc-name {
-            flex: 1; font-family: var(--font-body); font-weight: 700; color: #fff;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px;
+            font-family: var(--font-body); font-weight: 700; color: #fff; font-size: 1.2rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px;
         }
 
-        .sc-data-group { display: flex; justify-content: flex-end; align-items: center; }
         .sc-val { font-family: var(--font-num); text-align: right; }
-        .sc-score { color: var(--text-gray); font-weight: 400; }
-        .sc-pt { font-weight: 800; }
-        .sc-total { font-weight: 700; color: var(--primary-gold); border-left: 1px solid #333; padding-left: 5px; }
+        .sc-score { color: var(--text-gray); font-weight: 400; font-size: 0.9rem; }
+        .sc-pt { font-weight: 800; font-size: 1.15rem; }
+        .sc-total { font-weight: 700; color: var(--primary-gold); border-left: 1px solid #333; font-size: 0.95rem; }
 
         .val-pos { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.3); }
         .val-neg { color: #6a768f; }
 
         .sc-footer { background: #000; color: #444; text-align: center; font-size: 0.6rem; padding: 10px; letter-spacing: 3px; text-transform: uppercase; font-family: var(--font-head); }
 
-        /* Buttons in Modal */
+        /* Mobile Responsive Grid Adjustments */
+        @media screen and (max-width: 500px) {
+            .share-card { width: 340px; }
+            .sc-header { padding: 15px; }
+            .sc-title h2 { font-size: 1.8rem; }
+            .sc-game-id { font-size: 1.1rem; }
+            
+            /* Adjust Grid Columns for Mobile */
+            .sc-labels, .sc-row {
+                grid-template-columns: 40px 1fr 60px 60px 60px; /* Slightly tighter */
+                gap: 5px; padding-left: 10px; padding-right: 10px; margin-left: 10px; margin-right: 10px;
+            }
+            
+            .sc-rank-badge { font-size: 1.3rem; }
+            .sc-name { font-size: 1rem; padding-left: 5px; }
+            .sc-score { font-size: 0.8rem; }
+            .sc-pt { font-size: 0.95rem; }
+            .sc-total { font-size: 0.8rem; }
+            .sc-row { height: 48px; }
+        }
+
+        /* Buttons */
         .modal-btns { margin-top: 15px; display: flex; gap: 10px; flex-direction: column; align-items: center; }
         .btn-download {
             background: var(--primary-gold); color: #000; padding: 10px 30px; border-radius: 50px;
@@ -260,7 +290,6 @@
             border-radius: 50px; cursor: pointer; font-size: 0.8rem;
         }
 
-        /* Generated Image Preview Area */
         #img-preview-area { margin-top: 15px; text-align: center; display: none; }
         #img-preview-area img { max-width: 100%; border: 1px solid #fff; border-radius: 4px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         .save-tip { color: #4dff88; font-size: 0.8rem; margin-bottom: 5px; }
@@ -273,7 +302,7 @@
         <h1>801.LEAGUE</h1>
         <div class="meta-row">
             <div class="subtitle">OFFICIAL MATCH RECORDER</div>
-            <div class="version-badge">v0.6</div>
+            <div class="version-badge">v0.61</div>
         </div>
     </div>
 
@@ -358,12 +387,11 @@
                 </div>
                 
                 <div class="sc-labels">
+                    <div class="lbl-center">#</div>
                     <div class="lbl-left">PLAYER</div>
-                    <div class="lbl-right">
-                        <div class="lbl-col">SCORE</div>
-                        <div class="lbl-col">GAME PT</div>
-                        <div class="lbl-col highlight">TOTAL</div>
-                    </div>
+                    <div class="lbl-right">SCORE</div>
+                    <div class="lbl-right">PT</div>
+                    <div class="lbl-right highlight">TOTAL</div>
                 </div>
 
                 <div class="sc-body" id="share-content">
@@ -382,7 +410,7 @@
 
         <div id="img-preview-area">
             <div class="save-tip">✅ 生成成功！请长按下方图片保存</div>
-            </div>
+        </div>
     </div>
 
     <script>
@@ -469,7 +497,7 @@
 
             const uniqueScores = new Set(scores);
             if (uniqueScores.size !== scores.length) {
-                alert("错误：检测到相同的分数！请根据规则处理同分情况（如按顺位区分）。");
+                alert("错误：检测到相同的分数！请根据规则处理同分情况。");
                 return;
             }
 
@@ -503,7 +531,6 @@
             resetInputs(false);
         }
 
-        // --- 新增：撤销上一局功能 ---
         function undoLastMatch() {
             if (appData.matches.length === 0) return;
             
@@ -511,16 +538,12 @@
                 return;
             }
 
-            const lastMatch = appData.matches.pop(); // 移除最后一条
+            const lastMatch = appData.matches.pop(); 
 
-            // 回滚分数
             lastMatch.results.forEach(p => {
                 if (appData.players[p.name]) {
-                    // 减去当局PT
                     appData.players[p.name].pt = Math.round((appData.players[p.name].pt - p.gamePt) * 10) / 10;
                     appData.players[p.name].count -= 1;
-                    
-                    // 如果场数归零且积分为0，可以选择删除该玩家记录，这里保留
                 }
             });
 
@@ -530,7 +553,6 @@
         }
 
         function updateUI() {
-            // Undo button status
             const undoBtn = document.getElementById('undo-btn');
             undoBtn.style.display = appData.matches.length > 0 ? 'inline-block' : 'none';
 
@@ -616,7 +638,6 @@
             const modal = document.getElementById('share-modal');
             const content = document.getElementById('share-content');
             
-            // 重置状态
             document.getElementById('capture-target').style.display = 'block';
             document.getElementById('img-preview-area').style.display = 'none';
             document.getElementById('img-preview-area').innerHTML = '<div class="save-tip">✅ 生成成功！请长按下方图片保存</div>';
@@ -638,58 +659,46 @@
                 row.innerHTML = `
                     <div class="sc-rank-badge">${p.rank}</div>
                     <div class="sc-name">${p.name}</div>
-                    <div class="sc-data-group">
-                        <div class="sc-val sc-score">${p.score}</div>
-                        <div class="sc-val sc-pt ${ptClass}">${ptStr}</div>
-                        <div class="sc-val sc-total">${totalStr}</div>
-                    </div>
+                    <div class="sc-val sc-score">${p.score}</div>
+                    <div class="sc-val sc-pt ${ptClass}">${ptStr}</div>
+                    <div class="sc-val sc-total">${totalStr}</div>
                 `;
                 content.appendChild(row);
             });
             modal.style.display = 'flex';
         }
 
-        // --- 新增：图片生成与下载逻辑 ---
         function downloadPoster() {
             const target = document.querySelector(".share-card");
             const btn = document.querySelector(".btn-download");
             btn.innerText = "⏳ 生成中...";
             
-            // 使用 html2canvas 生成图片
             html2canvas(target, {
-                backgroundColor: null, // 保持透明或背景色
-                scale: 2, // 高清 2x
+                backgroundColor: null, 
+                scale: 2, 
                 useCORS: true
             }).then(canvas => {
                 btn.innerText = "📸 保存为图片";
                 
-                // 转为图片URL
                 const imgData = canvas.toDataURL("image/png");
 
-                // 1. 尝试自动下载 (PC/Android友好)
-                const link = document.createElement('a');
-                link.download = `801League_Game_${document.getElementById('share-game-id').innerText}.png`;
-                link.href = imgData;
-                
-                // 判断是否是 iOS
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
                 if (!isIOS) {
+                    const link = document.createElement('a');
+                    link.download = `801League_Game_${document.getElementById('share-game-id').innerText}.png`;
+                    link.href = imgData;
                     link.click();
                 }
 
-                // 2. 在界面上显示图片供长按保存 (iOS友好)
                 const img = document.createElement('img');
                 img.src = imgData;
                 const previewArea = document.getElementById('img-preview-area');
                 previewArea.appendChild(img);
                 
-                // 切换显示模式：隐藏原始DOM，显示图片
                 document.getElementById('capture-target').style.display = 'none';
-                document.getElementById('modal-controls').style.display = 'none'; // 隐藏按钮
+                document.getElementById('modal-controls').style.display = 'none';
                 previewArea.style.display = 'block';
                 
-                // 添加一个关闭预览的按钮在最下方
                 const closePreviewBtn = document.createElement('button');
                 closePreviewBtn.innerText = "关闭页面";
                 closePreviewBtn.className = "btn-close";
