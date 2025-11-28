@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>801.LEAGUE 赛事系统 v0.61</title>
+    <title>801.LEAGUE 赛事系统 v0.63</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
@@ -104,7 +104,7 @@
         .btn-submit:active { transform: translateY(1px); }
         .btn-reset { background: #232936; color: #7d859e; border: 1px solid #2a2f40; }
 
-        /* --- Tables (Mobile Fix: Force Dark Background) --- */
+        /* --- Tables --- */
         .section-title {
             width: 100%; max-width: 600px; margin: 30px 0 10px 0; display: flex; justify-content: space-between; align-items: center;
         }
@@ -120,27 +120,23 @@
         .btn-danger { color: #ff6b6b; border-color: #522; }
         .btn-warn { color: #feca57; border-color: #542; margin-right: 5px; }
 
-        /* 修复：强制指定表格背景颜色，防止手机端变白 */
         table {
             width: 100%; max-width: 600px; border-collapse: separate; border-spacing: 0;
-            background-color: var(--panel-bg) !important; /* Force Dark */
+            background-color: var(--panel-bg) !important;
             border-radius: 12px; overflow: hidden;
             border: 1px solid var(--panel-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            color: #fff !important; /* Force White Text */
+            color: #fff !important;
         }
         th { 
-            background-color: #1a1f2e !important; /* Force Dark Header */
-            color: var(--text-gray) !important; 
+            background-color: #1a1f2e !important; color: var(--text-gray) !important; 
             padding: 12px; font-size: 0.7rem; font-family: var(--font-head); letter-spacing: 1px; 
             border-bottom: 1px solid var(--panel-border); 
         }
         td { 
-            background-color: var(--panel-bg) !important; /* Force Cell Background */
-            color: #fff !important; 
+            background-color: var(--panel-bg) !important; color: #fff !important; 
             padding: 12px; text-align: center; border-bottom: 1px solid #232936; 
             font-family: var(--font-num); font-size: 0.85rem; 
         }
-        
         .score-plus { color: #fff !important; } .score-minus { color: #6a768f !important; }
 
         /* History Detail */
@@ -149,19 +145,44 @@
         .history-detail-row { display: none; background-color: #0c0e14 !important; }
         .history-detail-row.show { display: table-row; }
         
-        .detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; }
+        .detail-wrapper { padding: 15px; }
+        .detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; }
         .detail-item {
             display: flex; flex-direction: column; align-items: center; background: #161b26;
-            padding: 8px 2px; border-radius: 6px; border: 1px solid #232936;
+            padding: 10px 2px; border-radius: 6px; border: 1px solid #232936;
         }
         .d-rank { font-family: var(--font-head); font-weight: bold; color: var(--primary-gold); font-size: 0.9rem;}
-        .d-name { color: #aaa; font-size: 0.75rem; margin: 3px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;}
-        .d-pt { font-family: var(--font-num); font-weight: bold; font-size: 0.8rem; }
+        .d-name { color: #fff; font-size: 0.8rem; margin: 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: bold; }
+        .d-score { color: var(--text-gray); font-family: var(--font-num); font-size: 0.75rem; margin-bottom: 2px; }
+        .d-pt { font-family: var(--font-num); font-weight: bold; font-size: 0.9rem; }
+        
+        .history-actions { text-align: center; }
+        .btn-regenerate {
+            background: #232936; color: var(--primary-gold); border: 1px solid var(--primary-gold-dim);
+            padding: 8px 20px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-regenerate:hover { background: var(--primary-gold); color: #000; }
 
-        .main-footer { margin-top: 50px; margin-bottom: 20px; color: #3c4357; font-size: 0.7rem; text-align: center; font-family: var(--font-body); }
+        /* Patch Notes Section */
+        .patch-notes-container {
+            width: 100%; max-width: 600px; margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;
+        }
+        .patch-toggle {
+            color: #555; font-size: 0.8rem; cursor: pointer; text-align: center; display: block; width: 100%;
+            background: none; border: none; text-decoration: underline; font-family: var(--font-body);
+        }
+        .patch-list {
+            display: none; margin-top: 15px; background: #0f1118; padding: 15px; border-radius: 8px; border: 1px solid #222;
+        }
+        .patch-list.show { display: block; }
+        .patch-item { margin-bottom: 10px; font-size: 0.75rem; color: #888; border-bottom: 1px dashed #222; padding-bottom: 5px; }
+        .patch-ver { color: var(--primary-gold); font-weight: bold; font-family: var(--font-num); margin-right: 5px; }
+
+        .main-footer { margin-top: 20px; margin-bottom: 20px; color: #3c4357; font-size: 0.7rem; text-align: center; font-family: var(--font-body); }
 
         /* =========================================
-           战报卡片 (Grid Layout Fix V0.61)
+           战报卡片 (V0.63 Optimized)
            ========================================= */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -176,7 +197,7 @@
         }
 
         .share-card {
-            width: 480px; /* 电脑端标准宽度 */
+            width: 550px;
             max-width: 100%;
             background: #12151f;
             background-image: 
@@ -189,7 +210,7 @@
         .sc-header {
             background: linear-gradient(90deg, #080a10 0%, #1c2130 100%);
             display: flex; justify-content: space-between; align-items: flex-end;
-            padding: 20px 25px;
+            padding: 20px 30px;
             border-bottom: 1px solid var(--primary-gold);
         }
         .sc-title h2 { margin: 0; color: #fff; font-family: var(--font-head); font-style: italic; font-weight: 700; line-height: 1; letter-spacing: -1px; font-size: 2.2rem; }
@@ -198,38 +219,32 @@
         .sc-game-id { color: var(--primary-gold); font-family: var(--font-head); font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 10px rgba(207, 170, 104, 0.4); font-size: 1.4rem; }
         .sc-date { color: var(--text-gray); font-family: var(--font-num); font-size: 0.75rem; margin-top: 4px; }
 
-        /* --- 新的 Grid 排版系统 --- */
-        /* 定义 5列 网格： Rank | Name | Score | GamePT | Total */
-        /* 列宽分配：Rank(60px) Name(自动填充) Score(70px) PT(70px) Total(75px) */
-        
+        /* Grid System: Rank(50px) | Name(Auto) | Score(80px) | PT(80px) | Total(80px) */
         .sc-labels {
             display: grid; 
-            /* Grid definition */
-            grid-template-columns: 60px 1fr 70px 75px 75px; 
-            gap: 10px;
+            grid-template-columns: 50px 1fr 80px 80px 80px; 
+            gap: 15px;
             align-items: center; 
-            padding: 10px 20px 6px 20px;
+            padding: 12px 25px 8px 25px;
             background: rgba(255,255,255,0.02);
             font-family: var(--font-head); font-size: 0.65rem; color: #5d6680; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;
         }
         
         .sc-row {
             display: grid;
-            grid-template-columns: 60px 1fr 70px 75px 75px;
-            gap: 10px;
+            grid-template-columns: 50px 1fr 80px 80px 80px;
+            gap: 15px;
             align-items: center; 
-            background: rgba(255,255,255,0.03); margin-bottom: 8px; margin-left:20px; margin-right:20px; /* Side margins */
+            background: rgba(255,255,255,0.03); margin-bottom: 8px; margin-left:25px; margin-right:25px;
             border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);
-            height: 56px;
+            height: 60px;
         }
 
-        /* 标签对齐 */
         .lbl-center { text-align: center; }
-        .lbl-left { text-align: left; padding-left: 10px; }
+        .lbl-left { text-align: left; padding-left: 5px; }
         .lbl-right { text-align: right; }
         .lbl-right.highlight { color: var(--primary-gold); opacity: 0.9; }
 
-        /* 内容样式 */
         .sc-rank-badge {
             height: 100%; display: flex; align-items: center; justify-content: center;
             font-family: var(--font-head); font-weight: 700; font-style: italic; font-size: 1.6rem;
@@ -243,42 +258,50 @@
         .sc-row.r4 .sc-rank-badge { background: var(--rank-4-bg); color: #fff; }
 
         .sc-name {
-            font-family: var(--font-body); font-weight: 700; color: #fff; font-size: 1.2rem;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px;
+            font-family: var(--font-body); font-weight: 700; color: #fff; font-size: 1.25rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 5px;
+            display: block; width: 100%;
         }
 
         .sc-val { font-family: var(--font-num); text-align: right; }
-        .sc-score { color: var(--text-gray); font-weight: 400; font-size: 0.9rem; }
-        .sc-pt { font-weight: 800; font-size: 1.15rem; }
-        .sc-total { font-weight: 700; color: var(--primary-gold); border-left: 1px solid #333; font-size: 0.95rem; }
+        .sc-score { color: var(--text-gray); font-weight: 400; font-size: 0.95rem; }
+        .sc-pt { font-weight: 800; font-size: 1.2rem; }
+        .sc-total { font-weight: 700; color: var(--primary-gold); border-left: 1px solid #333; font-size: 1rem; }
 
         .val-pos { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.3); }
         .val-neg { color: #6a768f; }
 
-        .sc-footer { background: #000; color: #444; text-align: center; font-size: 0.6rem; padding: 10px; letter-spacing: 3px; text-transform: uppercase; font-family: var(--font-head); }
+        /* V0.63 Footer Upgrade */
+        .sc-footer { 
+            background: linear-gradient(to bottom, #141824, #000);
+            color: #8892b0;
+            text-align: center; 
+            font-size: 0.65rem; 
+            padding: 15px 12px; 
+            letter-spacing: 5px; 
+            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; 
+            font-weight: 300;
+            border-top: 1px solid #333;
+            text-transform: uppercase;
+        }
 
-        /* Mobile Responsive Grid Adjustments */
         @media screen and (max-width: 500px) {
             .share-card { width: 340px; }
             .sc-header { padding: 15px; }
             .sc-title h2 { font-size: 1.8rem; }
             .sc-game-id { font-size: 1.1rem; }
-            
-            /* Adjust Grid Columns for Mobile */
             .sc-labels, .sc-row {
-                grid-template-columns: 40px 1fr 60px 60px 60px; /* Slightly tighter */
+                grid-template-columns: 40px 1fr 60px 60px 60px;
                 gap: 5px; padding-left: 10px; padding-right: 10px; margin-left: 10px; margin-right: 10px;
             }
-            
             .sc-rank-badge { font-size: 1.3rem; }
             .sc-name { font-size: 1rem; padding-left: 5px; }
             .sc-score { font-size: 0.8rem; }
             .sc-pt { font-size: 0.95rem; }
             .sc-total { font-size: 0.8rem; }
-            .sc-row { height: 48px; }
+            .sc-row { height: 50px; }
         }
 
-        /* Buttons */
         .modal-btns { margin-top: 15px; display: flex; gap: 10px; flex-direction: column; align-items: center; }
         .btn-download {
             background: var(--primary-gold); color: #000; padding: 10px 30px; border-radius: 50px;
@@ -302,7 +325,7 @@
         <h1>801.LEAGUE</h1>
         <div class="meta-row">
             <div class="subtitle">OFFICIAL MATCH RECORDER</div>
-            <div class="version-badge">v0.61</div>
+            <div class="version-badge">v0.63</div>
         </div>
     </div>
 
@@ -346,7 +369,7 @@
             <tr>
                 <th style="width:15%">Rank</th>
                 <th style="text-align:left">Player</th>
-                <th>G</th>
+                <th>GAMES</th>
                 <th>Total PT</th>
             </tr>
         </thead>
@@ -369,7 +392,17 @@
         </thead>
         <tbody></tbody>
     </table>
-    <div style="font-size:0.75rem; color:#555; text-align:center; margin-top:8px; font-family:var(--font-body);">点击记录可查看详情</div>
+    <div style="font-size:0.75rem; color:#555; text-align:center; margin-top:8px; font-family:var(--font-body);">点击记录可查看详情或生成海报</div>
+
+    <div class="patch-notes-container">
+        <button class="patch-toggle" onclick="togglePatchNotes()">📝 查看版本更新日志 (Patch Notes)</button>
+        <div class="patch-list" id="patch-list">
+            <div class="patch-item"><span class="patch-ver">v0.63</span> 新增历史战报回溯功能；优化海报页脚排版；修正GAMES文案。</div>
+            <div class="patch-item"><span class="patch-ver">v0.62</span> 海报宽度升级，长ID完整显示；历史详情增加原始得分；页脚汉化。</div>
+            <div class="patch-item"><span class="patch-ver">v0.61</span> 修复移动端表格白底问题；重构海报为Grid网格布局，对齐更精准。</div>
+            <div class="patch-item"><span class="patch-ver">v0.60</span> 新增图片生成下载功能；新增撤销上一局功能。</div>
+        </div>
+    </div>
 
     <div class="main-footer">本系统由黄埔鳄霸801开发，仅供801内部使用</div>
 
@@ -398,7 +431,7 @@
                     </div>
 
                 <div class="sc-footer">
-                    Competitive Mahjong Recording System
+                    黄埔鳄霸801日麻积分系统
                 </div>
             </div>
         </div>
@@ -427,6 +460,11 @@
             updateUI();
             checkSum();
         };
+
+        function togglePatchNotes() {
+            const list = document.getElementById('patch-list');
+            list.classList.toggle('show');
+        }
 
         function loadData() {
             const saved = localStorage.getItem('801_league_data_v6');
@@ -552,6 +590,14 @@
             alert("已撤销上一局记录。");
         }
 
+        // --- 新增：历史海报再生 ---
+        function regeneratePoster(id) {
+            const match = appData.matches.find(m => m.id === id);
+            if(match) {
+                showShareModal(match.results, match.id);
+            }
+        }
+
         function updateUI() {
             const undoBtn = document.getElementById('undo-btn');
             undoBtn.style.display = appData.matches.length > 0 ? 'inline-block' : 'none';
@@ -605,7 +651,7 @@
                 trDetail.className = 'history-detail-row';
                 trDetail.id = `detail-${m.id}`;
                 
-                let detailsHTML = '<div class="detail-grid">';
+                let detailsHTML = `<div class="detail-wrapper"><div class="detail-grid">`;
                 m.results.forEach(p => {
                     const ptStr = p.gamePt > 0 ? '+' + p.gamePt : p.gamePt;
                     const ptColor = p.gamePt >= 0 ? '#ff4d4d' : '#4dff88';
@@ -613,11 +659,18 @@
                         <div class="detail-item">
                             <span class="d-rank">${p.rank}</span>
                             <span class="d-name">${p.name}</span>
+                            <span class="d-score">${p.score}</span>
                             <span class="d-pt" style="color:${ptColor}">${ptStr}</span>
                         </div>
                     `;
                 });
-                detailsHTML += '</div>';
+                detailsHTML += `</div>`;
+                // V0.63: 添加再生海报按钮
+                detailsHTML += `
+                    <div class="history-actions">
+                        <button class="btn-regenerate" onclick="regeneratePoster(${m.id})">📸 查看本局海报</button>
+                    </div>
+                </div>`;
                 
                 trDetail.innerHTML = `<td colspan="5" style="padding:0; border:none;">${detailsHTML}</td>`;
                 hbody.appendChild(trDetail);
@@ -675,7 +728,7 @@
             
             html2canvas(target, {
                 backgroundColor: null, 
-                scale: 2, 
+                scale: 3,
                 useCORS: true
             }).then(canvas => {
                 btn.innerText = "📸 保存为图片";
