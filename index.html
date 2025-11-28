@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>801.LEAGUE 赛事系统 v0.63</title>
+    <title>801.LEAGUE 赛事系统 v0.72+</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Noto+Serif+SC:wght@700;900&family=Ma+Shan+Zheng&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -16,15 +18,14 @@
             --panel-border: #232936;
             --primary-gold: #cfaa68;
             --primary-gold-dim: #8a7346;
+            --danger-red: #d50000;
             --text-white: #ffffff;
             --text-gray: #7d859e;
-            --rank-1-bg: #cfaa68;
-            --rank-2-bg: #8b9bb4;
-            --rank-3-bg: #a05e46;
-            --rank-4-bg: #4a5568;
             --font-head: 'Oswald', sans-serif;
             --font-num: 'JetBrains Mono', monospace;
             --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-serif: 'Noto Serif SC', serif;
+            --font-calligraphy: 'Ma Shan Zheng', cursive;
         }
 
         body {
@@ -33,7 +34,7 @@
             background-image: radial-gradient(circle at 50% 0%, #1a1f2e 0%, transparent 70%);
             color: var(--text-white);
             margin: 0;
-            padding: 20px 15px;
+            padding: 20px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -62,37 +63,39 @@
             padding: 2px 6px; border-radius: 4px; font-weight: bold;
         }
 
+        /* --- Tab/Menu --- */
+        .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .nav-btn {
+            background: #1a1f2e; border: 1px solid #333; color: #888; padding: 8px 16px; 
+            border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .nav-btn.active { background: var(--primary-gold); color: #000; font-weight: bold; border-color: var(--primary-gold); }
+        .nav-btn.active-danger { background: var(--danger-red); color: #fff; font-weight: bold; border-color: var(--danger-red); }
+
         /* --- Input Card --- */
         .input-card {
             background: var(--panel-bg); padding: 25px 20px; border-radius: 16px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.6); width: 100%; max-width: 550px;
             margin-bottom: 30px; border: 1px solid var(--panel-border); position: relative; overflow: hidden;
-            box-sizing: border-box;
+            box-sizing: border-box; display: none;
         }
+        .input-card.active { display: block; }
         .input-card::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
             background: linear-gradient(90deg, transparent, var(--primary-gold), transparent); opacity: 0.5;
         }
+        .input-card.penalty-mode::before { background: linear-gradient(90deg, transparent, var(--danger-red), transparent); }
 
         .player-row { display: grid; grid-template-columns: 30px 1.5fr 1fr; gap: 10px; margin-bottom: 15px; align-items: center; }
         .wind-label { font-family: var(--font-head); font-weight: 500; color: var(--primary-gold); text-align: center; font-size: 1.2rem; }
         
-        input {
+        input, select {
             background: #0b0e14; border: 1px solid #2a2f40; color: #fff; padding: 12px;
             border-radius: 8px; font-size: 1rem; width: 100%; box-sizing: border-box;
             transition: all 0.3s; font-family: var(--font-body);
         }
-        input:focus { outline: none; border-color: var(--primary-gold); background: #12151f; box-shadow: 0 0 15px rgba(207, 170, 104, 0.15); }
+        input:focus, select:focus { outline: none; border-color: var(--primary-gold); background: #12151f; box-shadow: 0 0 15px rgba(207, 170, 104, 0.15); }
         input[type="number"] { font-family: var(--font-num); font-weight: 700; letter-spacing: 1px; }
-
-        .status-bar {
-            text-align: center; font-size: 0.85rem; margin: 20px 0; padding: 10px;
-            border-radius: 8px; font-weight: bold; font-family: var(--font-num);
-            background: rgba(0,0,0,0.3); border: 1px solid transparent;
-        }
-        .status-ok { color: #4dff88; border-color: rgba(77, 255, 136, 0.2); background: rgba(77, 255, 136, 0.05); }
-        .status-warn { color: #ffcc00; border-color: rgba(255, 204, 0, 0.2); background: rgba(255, 204, 0, 0.05); }
-        .status-error { color: #ff4d4d; border-color: rgba(255, 77, 77, 0.2); background: rgba(255, 77, 77, 0.05); }
 
         .btn-group { display: flex; gap: 10px; margin-top: 25px; }
         button {
@@ -101,221 +104,174 @@
             transition: 0.2s;
         }
         .btn-submit { background: linear-gradient(135deg, #cfaa68 0%, #aa8949 100%); color: #1a1a1a; box-shadow: 0 4px 20px rgba(207, 170, 104, 0.25); }
-        .btn-submit:active { transform: translateY(1px); }
         .btn-reset { background: #232936; color: #7d859e; border: 1px solid #2a2f40; }
+        .btn-penalty { background: linear-gradient(135deg, #d50000 0%, #9b0000 100%); color: #fff; box-shadow: 0 4px 20px rgba(213, 0, 0, 0.3); }
 
-        /* --- Tables --- */
-        .section-title {
-            width: 100%; max-width: 600px; margin: 30px 0 10px 0; display: flex; justify-content: space-between; align-items: center;
-        }
-        .section-title span {
-            font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; color: var(--text-white);
-            border-left: 4px solid var(--primary-gold); padding-left: 10px; letter-spacing: 1px;
-        }
-        
-        .action-btn {
-            padding: 5px 10px; font-size: 0.7rem; border-radius: 4px; border: 1px solid #333;
-            cursor: pointer; background: #1a1f2e; color: #888; font-family: var(--font-body);
-        }
+        .form-stack { display: flex; flex-direction: column; gap: 15px; }
+        .form-tip { font-size: 0.75rem; color: #666; margin-top: -10px; padding-left: 5px; }
+        .status-bar { text-align: center; font-size: 0.85rem; margin: 20px 0; padding: 10px; border-radius: 8px; font-weight: bold; background: rgba(0,0,0,0.3); }
+        .status-ok { color: #4dff88; background: rgba(77, 255, 136, 0.05); }
+
+        /* --- Tables Container --- */
+        #tables-container { display: block; width: 100%; max-width: 600px; }
+
+        .section-title { width: 100%; margin: 30px 0 10px 0; display: flex; justify-content: space-between; align-items: center; }
+        .section-title span { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; color: var(--text-white); border-left: 4px solid var(--primary-gold); padding-left: 10px; letter-spacing: 1px; }
+        .action-btn { padding: 5px 10px; font-size: 0.7rem; border-radius: 4px; border: 1px solid #333; cursor: pointer; background: #1a1f2e; color: #888; }
         .btn-danger { color: #ff6b6b; border-color: #522; }
-        .btn-warn { color: #feca57; border-color: #542; margin-right: 5px; }
 
-        table {
-            width: 100%; max-width: 600px; border-collapse: separate; border-spacing: 0;
-            background-color: var(--panel-bg) !important;
-            border-radius: 12px; overflow: hidden;
-            border: 1px solid var(--panel-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            color: #fff !important;
-        }
-        th { 
-            background-color: #1a1f2e !important; color: var(--text-gray) !important; 
-            padding: 12px; font-size: 0.7rem; font-family: var(--font-head); letter-spacing: 1px; 
-            border-bottom: 1px solid var(--panel-border); 
-        }
-        td { 
-            background-color: var(--panel-bg) !important; color: #fff !important; 
-            padding: 12px; text-align: center; border-bottom: 1px solid #232936; 
-            font-family: var(--font-num); font-size: 0.85rem; 
-        }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; background-color: var(--panel-bg) !important; border-radius: 12px; overflow: hidden; border: 1px solid var(--panel-border); color: #fff !important; }
+        th { background-color: #1a1f2e !important; color: var(--text-gray) !important; padding: 12px; font-size: 0.7rem; font-family: var(--font-head); border-bottom: 1px solid var(--panel-border); }
+        td { background-color: var(--panel-bg) !important; color: #fff !important; padding: 12px; text-align: center; border-bottom: 1px solid #232936; font-family: var(--font-num); font-size: 0.85rem; }
         .score-plus { color: #fff !important; } .score-minus { color: #6a768f !important; }
 
-        /* History Detail */
         .history-row { cursor: pointer; transition: background 0.2s; }
         .history-row:hover td { background-color: #1f2536 !important; }
         .history-detail-row { display: none; background-color: #0c0e14 !important; }
         .history-detail-row.show { display: table-row; }
-        
         .detail-wrapper { padding: 15px; }
         .detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; }
-        .detail-item {
-            display: flex; flex-direction: column; align-items: center; background: #161b26;
-            padding: 10px 2px; border-radius: 6px; border: 1px solid #232936;
-        }
+        .detail-item { display: flex; flex-direction: column; align-items: center; background: #161b26; padding: 10px 2px; border-radius: 6px; border: 1px solid #232936; }
         .d-rank { font-family: var(--font-head); font-weight: bold; color: var(--primary-gold); font-size: 0.9rem;}
         .d-name { color: #fff; font-size: 0.8rem; margin: 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: bold; }
         .d-score { color: var(--text-gray); font-family: var(--font-num); font-size: 0.75rem; margin-bottom: 2px; }
         .d-pt { font-family: var(--font-num); font-weight: bold; font-size: 0.9rem; }
-        
-        .history-actions { text-align: center; }
-        .btn-regenerate {
-            background: #232936; color: var(--primary-gold); border: 1px solid var(--primary-gold-dim);
-            padding: 8px 20px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: bold;
-            transition: 0.2s;
-        }
-        .btn-regenerate:hover { background: var(--primary-gold); color: #000; }
+        .btn-regenerate { background: #232936; color: var(--primary-gold); border: 1px solid var(--primary-gold-dim); padding: 8px 20px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
 
-        /* Patch Notes Section */
-        .patch-notes-container {
-            width: 100%; max-width: 600px; margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;
-        }
-        .patch-toggle {
-            color: #555; font-size: 0.8rem; cursor: pointer; text-align: center; display: block; width: 100%;
-            background: none; border: none; text-decoration: underline; font-family: var(--font-body);
-        }
-        .patch-list {
-            display: none; margin-top: 15px; background: #0f1118; padding: 15px; border-radius: 8px; border: 1px solid #222;
-        }
+        /* Patch Notes */
+        .patch-notes-container { width: 100%; max-width: 600px; margin-top: 30px; border-top: 1px solid #333; padding-top: 20px; }
+        .patch-toggle { color: #555; font-size: 0.8rem; cursor: pointer; text-align: center; display: block; width: 100%; background: none; border: none; text-decoration: underline; }
+        .patch-list { display: none; margin-top: 15px; background: #0f1118; padding: 15px; border-radius: 8px; border: 1px solid #222; }
         .patch-list.show { display: block; }
         .patch-item { margin-bottom: 10px; font-size: 0.75rem; color: #888; border-bottom: 1px dashed #222; padding-bottom: 5px; }
-        .patch-ver { color: var(--primary-gold); font-weight: bold; font-family: var(--font-num); margin-right: 5px; }
+        .patch-ver { color: var(--primary-gold); font-weight: bold; margin-right: 5px; }
 
-        .main-footer { margin-top: 20px; margin-bottom: 20px; color: #3c4357; font-size: 0.7rem; text-align: center; font-family: var(--font-body); }
+        .main-footer { margin-top: 20px; margin-bottom: 20px; color: #3c4357; font-size: 0.7rem; text-align: center; }
 
-        /* =========================================
-           战报卡片 (V0.63 Optimized)
-           ========================================= */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center;
-            flex-direction: column; padding: 20px; overflow-y: auto; backdrop-filter: blur(5px);
-        }
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; padding: 20px; overflow-y: auto; backdrop-filter: blur(5px); }
+        .capture-wrapper { margin-bottom: 20px; box-shadow: 0 0 60px rgba(0,0,0,0.8); max-width: 100%; }
+        .modal-btns { margin-top: 15px; display: flex; gap: 10px; flex-direction: column; align-items: center; }
+        .btn-download { background: var(--primary-gold); color: #000; padding: 10px 30px; border-radius: 50px; font-weight: bold; font-family: var(--font-head); text-transform: uppercase; border: none; cursor: pointer; }
+        .btn-close { background: transparent; border: 1px solid #555; color: #aaa; padding: 8px 30px; border-radius: 50px; cursor: pointer; font-size: 0.8rem; }
+        #img-preview-area { margin-top: 15px; text-align: center; display: none; }
+        #img-preview-area img { max-width: 100%; border: 1px solid #fff; border-radius: 4px; }
+        .save-tip { color: #4dff88; font-size: 0.8rem; margin-bottom: 5px; }
 
-        .share-card-wrapper {
-            margin-bottom: 20px;
-            box-shadow: 0 0 60px rgba(0,0,0,0.8);
-            max-width: 100%;
-        }
-
-        .share-card {
-            width: 550px;
-            max-width: 100%;
-            background: #12151f;
-            background-image: 
-                linear-gradient(rgba(18, 21, 31, 0.97), rgba(18, 21, 31, 0.97)),
-                repeating-linear-gradient(45deg, #1f2536 0, #1f2536 1px, transparent 0, transparent 40px);
-            border: 2px solid var(--primary-gold);
-            border-radius: 6px; overflow: hidden; font-family: var(--font-body); position: relative;
-        }
-
-        .sc-header {
-            background: linear-gradient(90deg, #080a10 0%, #1c2130 100%);
-            display: flex; justify-content: space-between; align-items: flex-end;
-            padding: 20px 30px;
-            border-bottom: 1px solid var(--primary-gold);
-        }
-        .sc-title h2 { margin: 0; color: #fff; font-family: var(--font-head); font-style: italic; font-weight: 700; line-height: 1; letter-spacing: -1px; font-size: 2.2rem; }
+        /* Match Poster */
+        .share-card { width: 550px; max-width: 100%; background: #12151f; background-image: linear-gradient(rgba(18, 21, 31, 0.97), rgba(18, 21, 31, 0.97)), repeating-linear-gradient(45deg, #1f2536 0, #1f2536 1px, transparent 0, transparent 40px); border: 2px solid var(--primary-gold); border-radius: 6px; overflow: hidden; font-family: var(--font-body); position: relative; }
+        .sc-header { background: linear-gradient(90deg, #080a10 0%, #1c2130 100%); display: flex; justify-content: space-between; align-items: flex-end; padding: 20px 30px; border-bottom: 1px solid var(--primary-gold); }
+        .sc-title h2 { margin: 0; color: #fff; font-family: var(--font-head); font-style: italic; font-weight: 700; font-size: 2.2rem; }
         .sc-title span { color: var(--primary-gold); }
         .sc-meta { text-align: right; }
-        .sc-game-id { color: var(--primary-gold); font-family: var(--font-head); font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 10px rgba(207, 170, 104, 0.4); font-size: 1.4rem; }
-        .sc-date { color: var(--text-gray); font-family: var(--font-num); font-size: 0.75rem; margin-top: 4px; }
-
-        /* Grid System: Rank(50px) | Name(Auto) | Score(80px) | PT(80px) | Total(80px) */
-        .sc-labels {
-            display: grid; 
-            grid-template-columns: 50px 1fr 80px 80px 80px; 
-            gap: 15px;
-            align-items: center; 
-            padding: 12px 25px 8px 25px;
-            background: rgba(255,255,255,0.02);
-            font-family: var(--font-head); font-size: 0.65rem; color: #5d6680; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;
-        }
-        
-        .sc-row {
-            display: grid;
-            grid-template-columns: 50px 1fr 80px 80px 80px;
-            gap: 15px;
-            align-items: center; 
-            background: rgba(255,255,255,0.03); margin-bottom: 8px; margin-left:25px; margin-right:25px;
-            border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);
-            height: 60px;
-        }
-
-        .lbl-center { text-align: center; }
-        .lbl-left { text-align: left; padding-left: 5px; }
-        .lbl-right { text-align: right; }
-        .lbl-right.highlight { color: var(--primary-gold); opacity: 0.9; }
-
-        .sc-rank-badge {
-            height: 100%; display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-head); font-weight: 700; font-style: italic; font-size: 1.6rem;
-            color: rgba(0,0,0,0.4); background: #2a2f40;
-        }
-        
+        .sc-game-id { color: var(--primary-gold); font-family: var(--font-head); font-weight: 700; font-size: 1.4rem; }
+        .sc-date { color: var(--text-gray); font-family: var(--font-num); font-size: 0.75rem; }
+        .sc-labels, .sc-row { display: grid; grid-template-columns: 50px 1fr 80px 80px 80px; gap: 15px; align-items: center; padding: 0 25px; }
+        .sc-labels { padding-top: 12px; padding-bottom: 8px; background: rgba(255,255,255,0.02); font-family: var(--font-head); font-size: 0.65rem; color: #5d6680; text-transform: uppercase; letter-spacing: 1px; }
+        .sc-row { background: rgba(255,255,255,0.03); margin: 0 25px 8px 25px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); height: 60px; padding: 0; }
+        .lbl-right { text-align: right; } .lbl-right.highlight { color: var(--primary-gold); opacity: 0.9; }
+        .sc-rank-badge { height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 700; font-style: italic; font-size: 1.6rem; color: rgba(0,0,0,0.4); background: #2a2f40; }
         .sc-row.r1 { background: linear-gradient(90deg, rgba(207, 170, 104, 0.15) 0%, transparent 100%); border-color: rgba(207, 170, 104, 0.4); }
         .sc-row.r1 .sc-rank-badge { background: var(--rank-1-bg); color: #1a1a1a; }
         .sc-row.r2 .sc-rank-badge { background: var(--rank-2-bg); color: #1a1a1a; }
         .sc-row.r3 .sc-rank-badge { background: var(--rank-3-bg); color: #1a1a1a; }
         .sc-row.r4 .sc-rank-badge { background: var(--rank-4-bg); color: #fff; }
-
-        .sc-name {
-            font-family: var(--font-body); font-weight: 700; color: #fff; font-size: 1.25rem;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 5px;
-            display: block; width: 100%;
-        }
-
-        .sc-val { font-family: var(--font-num); text-align: right; }
-        .sc-score { color: var(--text-gray); font-weight: 400; font-size: 0.95rem; }
+        .sc-name { font-family: var(--font-body); font-weight: 700; color: #fff; font-size: 1.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px; }
+        .sc-val { font-family: var(--font-num); text-align: right; padding-right: 10px; }
+        .sc-score { color: var(--text-gray); font-size: 0.95rem; }
         .sc-pt { font-weight: 800; font-size: 1.2rem; }
         .sc-total { font-weight: 700; color: var(--primary-gold); border-left: 1px solid #333; font-size: 1rem; }
-
-        .val-pos { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.3); }
-        .val-neg { color: #6a768f; }
-
-        /* V0.63 Footer Upgrade */
-        .sc-footer { 
-            background: linear-gradient(to bottom, #141824, #000);
-            color: #8892b0;
-            text-align: center; 
-            font-size: 0.65rem; 
-            padding: 15px 12px; 
-            letter-spacing: 5px; 
-            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; 
-            font-weight: 300;
-            border-top: 1px solid #333;
-            text-transform: uppercase;
-        }
+        .val-pos { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.3); } .val-neg { color: #6a768f; }
+        .sc-footer { background: linear-gradient(to bottom, #141824, #000); color: #aab; text-align: center; font-size: 0.65rem; padding: 15px 12px; letter-spacing: 4px; font-family: "Noto Serif SC", serif; font-weight: 700; border-top: 1px solid #333; text-shadow: 0 1px 2px rgba(0,0,0,0.8); text-transform: uppercase; }
 
         @media screen and (max-width: 500px) {
             .share-card { width: 340px; }
-            .sc-header { padding: 15px; }
-            .sc-title h2 { font-size: 1.8rem; }
-            .sc-game-id { font-size: 1.1rem; }
-            .sc-labels, .sc-row {
-                grid-template-columns: 40px 1fr 60px 60px 60px;
-                gap: 5px; padding-left: 10px; padding-right: 10px; margin-left: 10px; margin-right: 10px;
-            }
-            .sc-rank-badge { font-size: 1.3rem; }
-            .sc-name { font-size: 1rem; padding-left: 5px; }
-            .sc-score { font-size: 0.8rem; }
-            .sc-pt { font-size: 0.95rem; }
-            .sc-total { font-size: 0.8rem; }
-            .sc-row { height: 50px; }
+            .sc-header { padding: 15px; } .sc-title h2 { font-size: 1.8rem; }
+            .sc-labels, .sc-row { grid-template-columns: 35px 1fr 50px 50px 50px; gap: 5px; padding-left: 0; padding-right: 0; }
+            .sc-row { margin: 0 10px 8px 10px; } .sc-labels { padding: 10px 10px 5px 10px; }
+            .sc-name { font-size: 0.9rem; } .sc-rank-badge { font-size: 1.3rem; }
         }
 
-        .modal-btns { margin-top: 15px; display: flex; gap: 10px; flex-direction: column; align-items: center; }
-        .btn-download {
-            background: var(--primary-gold); color: #000; padding: 10px 30px; border-radius: 50px;
-            font-weight: bold; font-family: var(--font-head); text-transform: uppercase; letter-spacing: 1px;
-            border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(207, 170, 104, 0.3);
+        /* Yakuman Certificate (Hyper-Realistic Update) */
+        .cert-card {
+            width: 800px; max-width: 100%;
+            background: #0d0d0d; border: 4px double var(--primary-gold); padding: 40px; position: relative; text-align: center;
+            font-family: "Noto Serif SC", serif; color: #fff; display: flex; flex-direction: column; align-items: center;
         }
-        .btn-close {
-            background: transparent; border: 1px solid #555; color: #aaa; padding: 8px 30px;
-            border-radius: 50px; cursor: pointer; font-size: 0.8rem;
+        .cert-bg-logo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: var(--font-head); font-size: 12rem; opacity: 0.03; color: var(--primary-gold); font-weight: 900; pointer-events: none; }
+        .cert-header { font-size: 3rem; color: var(--primary-gold); margin-bottom: 20px; letter-spacing: 10px; text-shadow: 0 0 15px rgba(207, 170, 104, 0.4); border-bottom: 1px solid #333; padding-bottom: 10px; width: 100%; }
+        .cert-content { width: 100%; z-index: 1; }
+        .cert-text { font-size: 1.2rem; color: #aaa; margin: 10px 0; letter-spacing: 2px; }
+        .cert-player { font-size: 2.5rem; color: #fff; font-weight: 900; margin: 5px 0 15px 0; text-decoration: underline; text-decoration-color: var(--primary-gold); }
+        .cert-yakuman-name { 
+            font-size: 4rem; color: var(--primary-gold); font-weight: 900; margin: 15px 0; 
+            text-shadow: 0 5px 15px rgba(0,0,0,0.8); letter-spacing: 5px;
+            background: linear-gradient(180deg, #fff 0%, #cfaa68 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        #img-preview-area { margin-top: 15px; text-align: center; display: none; }
-        #img-preview-area img { max-width: 100%; border: 1px solid #fff; border-radius: 4px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-        .save-tip { color: #4dff88; font-size: 0.8rem; margin-bottom: 5px; }
+        /* --- Realistic Tile CSS --- */
+        .cert-tiles { display: flex; gap: 4px; justify-content: center; margin: 35px 0; flex-wrap: wrap; perspective: 600px; }
+        .real-tile {
+            width: 48px; height: 66px;
+            /* 面色：乳白渐变 */
+            background: linear-gradient(145deg, #fffdf5 0%, #eee8d5 100%);
+            border-radius: 6px;
+            position: relative;
+            /* 模拟牌背厚度(Border-bottom) + 投影 */
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.9), /* 顶部高光 */
+                0 6px 0 #d9a046, /* 牌背/侧面 (黄色树脂层) */
+                0 10px 8px rgba(0,0,0,0.5); /* 桌面投影 */
+            display: flex; align-items: center; justify-content: center;
+            font-size: 42px; line-height: 1;
+            transform: rotateX(5deg); /* 轻微3D倾斜 */
+            margin-bottom: 6px; /* 补偿3D偏移 */
+            z-index: 1;
+        }
+        /* 表面光泽反射 */
+        .real-tile::after {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; height: 40%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.0));
+            border-radius: 6px 6px 30% 30%;
+            pointer-events: none;
+        }
+        /* 字体颜色与微雕效果 */
+        .real-tile.man { color: #b91e2e; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+        .real-tile.sou { color: #1a6840; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+        .real-tile.pin { color: #224475; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+        .real-tile.honor { color: #000; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+        .real-tile.red { color: #d50000; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+        .real-tile.green { color: #1b5e20; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+
+        .cert-footer { margin-top: 30px; display: flex; flex-direction: column; align-items: flex-end; width: 100%; text-align: right; }
+        .cert-org { font-size: 1.1rem; font-weight: bold; color: #fff; position: relative; margin-right: 20px; }
+        .cert-seal-box {
+            position: absolute; top: -40px; right: -20px; width: 100px; height: 100px;
+            border: 4px solid #b71c1c; border-radius: 4px; color: #b71c1c;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: var(--font-calligraphy), serif; font-size: 1.5rem; line-height: 1.1;
+            transform: rotate(-8deg); opacity: 0.85; mix-blend-mode: screen;
+            box-shadow: 0 0 0 2px rgba(183, 28, 28, 0.2); background: rgba(183, 28, 28, 0.05);
+        }
+        .cert-seal-text { font-weight: bold; letter-spacing: 2px; }
+
+        /* Penalty Card */
+        .penalty-card {
+            width: 600px; max-width: 100%;
+            background: #0a0000; border: 2px solid #500; border-top: 8px solid #d50000;
+            padding: 40px; text-align: center; font-family: "Noto Serif SC", serif; color: #fff;
+            position: relative; overflow: hidden;
+            background-image: repeating-linear-gradient(45deg, #100 0, #100 2px, #000 0, #000 10px);
+        }
+        .penalty-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 8rem; color: #d50000; opacity: 0.1; font-weight: 900; border: 5px solid #d50000; padding: 10px 40px; }
+        .penalty-title { font-size: 3rem; color: #d50000; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 5px; text-shadow: 0 0 10px #500; border-bottom: 2px solid #333; padding-bottom: 20px; }
+        .penalty-content { font-size: 1.3rem; line-height: 1.8; color: #ddd; margin: 20px 0; z-index: 1; position: relative; }
+        .penalty-player { color: #fff; font-size: 1.8rem; font-weight: bold; text-decoration: underline; text-decoration-color: #d50000; }
+        .penalty-reason { color: #f55; font-weight: bold; }
+        .penalty-result { margin-top: 20px; padding: 15px; background: rgba(213, 0, 0, 0.1); border-left: 5px solid #d50000; color: #fff; font-weight: bold; }
+        /* Timestamp style */
+        .penalty-time { margin-top: 25px; font-size: 0.85rem; color: #777; font-family: var(--font-num); letter-spacing: 1px; border-top: 1px solid #333; display: inline-block; padding-top: 5px; }
+        .penalty-footer { margin-top: 15px; font-size: 0.9rem; color: #666; text-align: center; }
 
     </style>
 </head>
@@ -325,11 +281,17 @@
         <h1>801.LEAGUE</h1>
         <div class="meta-row">
             <div class="subtitle">OFFICIAL MATCH RECORDER</div>
-            <div class="version-badge">v0.63</div>
+            <div class="version-badge">v0.72</div>
         </div>
     </div>
 
-    <div class="input-card">
+    <div class="nav-tabs">
+        <button class="nav-btn active" onclick="switchTab('match')" id="btn-tab-match">比赛记录</button>
+        <button class="nav-btn" onclick="switchTab('yakuman')" id="btn-tab-yakuman">役满证书</button>
+        <button class="nav-btn" onclick="switchTab('penalty')" id="btn-tab-penalty">处罚黑榜</button>
+    </div>
+
+    <div id="tab-match" class="input-card active">
         <div class="player-row">
             <div class="wind-label">东</div>
             <input type="text" id="p1-name" placeholder="ID" list="history-names" autocomplete="off">
@@ -357,434 +319,402 @@
             <button class="btn-submit" onclick="submitMatch()">记录 & 生成战报</button>
             <button class="btn-reset" onclick="resetInputs()">重置</button>
         </div>
-        <datalist id="history-names"></datalist>
     </div>
 
-    <div class="section-title">
-        <span>🏆 SEASON RANKING</span>
-        <button class="action-btn btn-danger" onclick="clearAllData()">🗑️ 清空所有</button>
+    <div id="tab-yakuman" class="input-card">
+        <div class="form-stack">
+            <input type="text" id="y-name" placeholder="和牌选手 ID" list="history-names">
+            <input type="text" id="y-hand" placeholder="手牌代码 (如: 123m 456p 789s eswn pfc)">
+            <div class="form-tip">代码: 数字+mps(万饼条), eswn(东南西北), P/bai(白), f(发), c(中)</div>
+            <div style="display:flex; gap:10px;">
+                <select id="y-type" style="flex:1;"><option value="荣和">荣和</option><option value="自摸">自摸</option></select>
+                <select id="y-yaku" style="flex:2;">
+                    <option value="国士无双">国士无双</option><option value="四暗刻">四暗刻</option>
+                    <option value="大三元">大三元</option><option value="字一色">字一色</option>
+                    <option value="绿一色">绿一色</option><option value="清老头">清老头</option>
+                    <option value="小四喜">小四喜</option><option value="大四喜">大四喜</option>
+                    <option value="四杠子">四杠子</option><option value="九莲宝灯">九莲宝灯</option>
+                    <option value="国士无双十三面">国士无双十三面</option><option value="纯正九莲宝灯">纯正九莲宝灯</option>
+                    <option value="四暗刻单骑">四暗刻单骑</option><option value="累计役满">累计役满</option>
+                </select>
+            </div>
+            <button class="btn-submit" onclick="generateCertificate()">生成役满证书</button>
+        </div>
     </div>
-    <table id="leaderboard-table">
-        <thead>
-            <tr>
-                <th style="width:15%">Rank</th>
-                <th style="text-align:left">Player</th>
-                <th>GAMES</th>
-                <th>Total PT</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
 
-    <div class="section-title">
-        <span>📜 MATCH HISTORY</span>
-        <button class="action-btn btn-warn" id="undo-btn" onclick="undoLastMatch()" style="display:none;">↩️ 撤销上一局</button>
+    <div id="tab-penalty" class="input-card penalty-mode">
+        <div class="form-stack">
+            <input type="text" id="pen-name" placeholder="违规选手 ID" list="history-names">
+            
+            <select id="pen-reason">
+                <option value="" disabled selected>选择违规原因</option>
+                <option value="振听荣和">振听荣和 (Furiten Ron)</option>
+                <option value="错和">错和 (False Ron)</option>
+                <option value="虚立直">虚立直 (False Riichi)</option>
+                <option value="破坏牌山">破坏牌山</option>
+                <option value="少牌/多牌">少牌/多牌 (Wrong Tile Count)</option>
+                <option value="误发声">误发声</option>
+                <option value="未注意牌桌礼仪">未注意牌桌礼仪</option>
+                <option value="作弊行为">作弊行为 (Cheating)</option>
+                <option value="恶劣言行">恶劣言行</option>
+            </select>
+            
+            <select id="pen-result">
+                <option value="" disabled selected>选择处罚结果</option>
+                <option value="本局停和">本局停和 (Dead Hand)</option>
+                <option value="错和罚符">错和罚符 (Chombo Payment)</option>
+                <option value="扣除 8pt">扣除 8pt</option>
+                <option value="扣除 12pt">扣除 12pt</option>
+                <option value="扣除 20pt">扣除 20pt</option>
+                <option value="扣除当日积分">扣除当日积分</option>
+                <option value="暂停比赛资格">暂停比赛资格</option>
+                <option value="永久禁赛">永久禁赛</option>
+            </select>
+
+            <button class="btn-submit btn-penalty" onclick="generatePenalty()">生成处罚通告</button>
+        </div>
     </div>
-    <table id="history-table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>1st</th>
-                <th>2nd</th>
-                <th>3rd</th>
-                <th>4th</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-    <div style="font-size:0.75rem; color:#555; text-align:center; margin-top:8px; font-family:var(--font-body);">点击记录可查看详情或生成海报</div>
+
+    <datalist id="history-names"></datalist>
+
+    <div id="tables-container">
+        <div class="section-title">
+            <span>🏆 SEASON RANKING</span>
+            <button class="action-btn btn-danger" onclick="clearAllData()">🗑️ 清空所有</button>
+        </div>
+        <table id="leaderboard-table">
+            <thead>
+                <tr>
+                    <th style="width:15%">Rank</th>
+                    <th style="text-align:left">Player</th>
+                    <th>GAMES</th>
+                    <th>Total PT</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="section-title">
+            <span>📜 MATCH HISTORY</span>
+            <button class="action-btn btn-warn" id="undo-btn" onclick="undoLastMatch()" style="display:none;">↩️ 撤销上一局</button>
+        </div>
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>1st</th>
+                    <th>2nd</th>
+                    <th>3rd</th>
+                    <th>4th</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div style="font-size:0.75rem; color:#555; text-align:center; margin-top:8px; font-family:var(--font-body);">点击记录可查看详情或生成海报</div>
+    </div>
+
+    <div class="modal-overlay" id="share-modal">
+        <div class="capture-wrapper" id="capture-target">
+            
+            <div class="share-card" id="match-poster-dom" style="display:none;">
+                <div class="sc-header">
+                    <div class="sc-title"><h2>801<span>.LEAGUE</span></h2></div>
+                    <div class="sc-meta"><div class="sc-game-id" id="share-game-id">GAME #00</div><div class="sc-date" id="share-date">--.--.--</div></div>
+                </div>
+                <div class="sc-labels"><div class="lbl-center">#</div><div class="lbl-left">PLAYER</div><div class="lbl-right">SCORE</div><div class="lbl-right">PT</div><div class="lbl-right highlight">TOTAL</div></div>
+                <div class="sc-body" id="share-content"></div>
+                <div class="sc-footer">黄埔鳄霸801日麻积分系统</div>
+            </div>
+
+            <div class="cert-card" id="yakuman-cert-dom" style="display:none;">
+                <div class="cert-bg-logo">801</div>
+                <div class="cert-header">役满证书</div>
+                <div class="cert-content">
+                    <div class="cert-text">恭喜选手</div>
+                    <div class="cert-player" id="cert-name">PlayerID</div>
+                    <div class="cert-text"><span id="cert-date">2023.10.01</span> 于 801.League 中</div>
+                    <div class="cert-text" style="font-weight:bold; color:#fff;">【 <span id="cert-type">自摸</span> 】 和牌</div>
+                    <div class="cert-yakuman-name" id="cert-yaku">国士无双</div>
+                    <div class="cert-tiles" id="cert-tiles-container"></div>
+                </div>
+                <div class="cert-footer">
+                    <div class="cert-org">黄埔鳄霸801<br>立直麻将竞赛管理小组
+                        <div class="cert-seal-box"><div class="cert-seal-text">801<br>认证</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="penalty-card" id="penalty-dom" style="display:none;">
+                <div class="penalty-watermark">VIOLATION</div>
+                <div class="penalty-title">违规处罚通告</div>
+                <div class="penalty-content">
+                    <p>在 <strong>801.League</strong> 比赛中</p>
+                    <p>选手 <span class="penalty-player" id="pen-dom-name">ID</span></p>
+                    <p>因 <span class="penalty-reason" id="pen-dom-reason">违规原因</span></p>
+                    <div class="penalty-result">
+                        处理结果：<span id="pen-dom-result">处罚结果</span>
+                    </div>
+                    <p style="margin-top:20px; font-size:1rem;">望各位选手引以为戒，遵守比赛规则，<br>共同维护良好的竞技环境。</p>
+                    <div class="penalty-time" id="pen-dom-time"></div>
+                </div>
+                <div class="penalty-footer">黄埔鳄霸801立直麻将竞赛管理小组</div>
+            </div>
+
+        </div>
+
+        <div class="modal-btns" id="modal-controls">
+            <button class="btn-download" onclick="downloadImage()">📸 保存为图片</button>
+            <button class="btn-close" onclick="closeModal()">关闭</button>
+        </div>
+        <div id="img-preview-area"><div class="save-tip">✅ 生成成功！请长按下方图片保存</div></div>
+    </div>
 
     <div class="patch-notes-container">
         <button class="patch-toggle" onclick="togglePatchNotes()">📝 查看版本更新日志 (Patch Notes)</button>
         <div class="patch-list" id="patch-list">
-            <div class="patch-item"><span class="patch-ver">v0.63</span> 新增历史战报回溯功能；优化海报页脚排版；修正GAMES文案。</div>
-            <div class="patch-item"><span class="patch-ver">v0.62</span> 海报宽度升级，长ID完整显示；历史详情增加原始得分；页脚汉化。</div>
-            <div class="patch-item"><span class="patch-ver">v0.61</span> 修复移动端表格白底问题；重构海报为Grid网格布局，对齐更精准。</div>
-            <div class="patch-item"><span class="patch-ver">v0.60</span> 新增图片生成下载功能；新增撤销上一局功能。</div>
-        </div>
-    </div>
-
-    <div class="main-footer">本系统由黄埔鳄霸801开发，仅供801内部使用</div>
-
-    <div class="modal-overlay" id="share-modal">
-        <div class="share-card-wrapper" id="capture-target">
-            <div class="share-card">
-                <div class="sc-header">
-                    <div class="sc-title">
-                        <h2>801<span>.LEAGUE</span></h2>
-                    </div>
-                    <div class="sc-meta">
-                        <div class="sc-game-id" id="share-game-id">GAME #00</div>
-                        <div class="sc-date" id="share-date">--.--.--</div>
-                    </div>
-                </div>
-                
-                <div class="sc-labels">
-                    <div class="lbl-center">#</div>
-                    <div class="lbl-left">PLAYER</div>
-                    <div class="lbl-right">SCORE</div>
-                    <div class="lbl-right">PT</div>
-                    <div class="lbl-right highlight">TOTAL</div>
-                </div>
-
-                <div class="sc-body" id="share-content">
-                    </div>
-
-                <div class="sc-footer">
-                    黄埔鳄霸801日麻积分系统
-                </div>
-            </div>
-        </div>
-
-        <div class="modal-btns" id="modal-controls">
-            <button class="btn-download" onclick="downloadPoster()">📸 保存为图片</button>
-            <button class="btn-close" onclick="closeModal()">关闭</button>
-        </div>
-
-        <div id="img-preview-area">
-            <div class="save-tip">✅ 生成成功！请长按下方图片保存</div>
+            <div class="patch-item"><span class="patch-ver">v0.72+</span> 优化麻将牌为拟真3D质感；处罚证书新增精确时间戳；修复数据初始化问题。</div>
+            <div class="patch-item"><span class="patch-ver">v0.71</span> 新增黑榜处罚生成器；印章样式更新。</div>
+            <div class="patch-item"><span class="patch-ver">v0.70</span> 新增役满证书生成器；修复移动端海报ID显示不全问题。</div>
         </div>
     </div>
 
     <script>
-        const RULE = {
-            base: 30000,
-            uma: [30, 10, -10, -30],
-            oka: 20
-        };
-
+        const RULE = { base: 30000, uma: [30, 10, -10, -30], oka: 20 };
         let appData = { matches: [], players: {} };
+        let currentMode = 'match'; 
 
-        window.onload = function() {
-            loadData();
-            updateUI();
-            checkSum();
-        };
+        // !!! V0.72 修复: 加入 updateUI() !!!
+        window.onload = function() { loadData(); updateUI(); };
 
-        function togglePatchNotes() {
-            const list = document.getElementById('patch-list');
-            list.classList.toggle('show');
+        function switchTab(tab) {
+            currentMode = tab;
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'active-danger'));
+            document.querySelectorAll('.input-card').forEach(c => c.classList.remove('active'));
+            
+            document.getElementById('btn-tab-'+tab).classList.add(tab==='penalty'?'active-danger':'active');
+            document.getElementById('tab-'+tab).classList.add('active');
+            
+            // 可选：如果希望只有在Match页面才显示列表，可以解开下面注释
+            // document.getElementById('tables-container').style.display = tab === 'match' ? 'block' : 'none';
         }
 
-        function loadData() {
-            const saved = localStorage.getItem('801_league_data_v6');
-            if (saved) appData = JSON.parse(saved);
+        function togglePatchNotes() { document.getElementById('patch-list').classList.toggle('show'); }
+        function loadData() { const s = localStorage.getItem('801_league_data_v7'); if (s) appData = JSON.parse(s); refreshNameList(); }
+        function saveData() { localStorage.setItem('801_league_data_v7', JSON.stringify(appData)); refreshNameList(); }
+        function refreshNameList() {
+             const dl = document.getElementById('history-names'); dl.innerHTML='';
+             Object.keys(appData.players).forEach(n=>{let o=document.createElement('option');o.value=n;dl.appendChild(o)});
         }
 
-        function saveData() {
-            localStorage.setItem('801_league_data_v6', JSON.stringify(appData));
-        }
-
+        // --- Logic: Match ---
         function checkSum() {
-            const s1 = Number(document.getElementById('p1-score').value) || 0;
-            const s2 = Number(document.getElementById('p2-score').value) || 0;
-            const s3 = Number(document.getElementById('p3-score').value) || 0;
-            const s4 = Number(document.getElementById('p4-score').value) || 0;
-            const sum = s1 + s2 + s3 + s4;
-            const diff = 100000 - sum;
-            
+            const s1 = Number(document.getElementById('p1-score').value)||0, s2 = Number(document.getElementById('p2-score').value)||0, s3 = Number(document.getElementById('p3-score').value)||0, s4 = Number(document.getElementById('p4-score').value)||0;
+            const diff = 100000 - (s1+s2+s3+s4);
             const el = document.getElementById('status-bar');
-            
-            if (sum === 0 && s1===0 && s2===0 && s3===0 && s4===0) {
-                el.innerText = "等待输入分数...";
-                el.className = "status-bar";
-                return false;
-            }
-
-            if (diff === 0) {
-                el.innerText = "✅ 校验通过 (100,000)";
-                el.className = "status-bar status-ok";
-                return true;
-            } else if (diff > 0) {
-                el.innerText = `⚠️ 还差 ${diff} 分`;
-                el.className = "status-bar status-warn";
-                return false;
-            } else {
-                el.innerText = `❌ 多出 ${Math.abs(diff)} 分`;
-                el.className = "status-bar status-error";
-                return false;
-            }
+            if(s1+s2+s3+s4===0) { el.innerText="等待输入..."; el.className="status-bar"; return false; }
+            if(diff===0) { el.innerText="✅ 校验通过"; el.className="status-bar status-ok"; return true; }
+            else { el.innerText=`❌ 差 ${diff}`; el.className="status-bar status-error"; return false; }
         }
 
         function submitMatch() {
-            if (!checkSum()) {
-                alert("分数总和必须为 100,000 点！");
-                return;
+            if(!checkSum()) { alert("分数不对"); return; }
+            let res = [];
+            for(let i=1; i<=4; i++) {
+                let n=document.getElementById(`p${i}-name`).value.trim(), s=Number(document.getElementById(`p${i}-score`).value);
+                if(!n || s%100!==0) { alert("信息有误"); return; }
+                res.push({name:n, score:s});
             }
-
-            const inputs = [
-                { id:'p1', w:0 }, { id:'p2', w:1 }, { id:'p3', w:2 }, { id:'p4', w:3 }
-            ];
-            
-            let currentResults = [];
-            let scores = [];
-            
-            for(let item of inputs) {
-                const name = document.getElementById(item.id + '-name').value.trim();
-                const scoreRaw = document.getElementById(item.id + '-score').value;
-                const score = Number(scoreRaw);
-                
-                if(!name) { alert("请输入完整ID"); return; }
-                if (score % 100 !== 0) {
-                    alert(`错误：玩家 ${name} 的分数 ${score} 不是100的倍数。`);
-                    return;
-                }
-                currentResults.push({ name, score, wind: item.w });
-                scores.push(score);
-            }
-
-            const uniqueScores = new Set(scores);
-            if (uniqueScores.size !== scores.length) {
-                alert("错误：检测到相同的分数！请根据规则处理同分情况。");
-                return;
-            }
-
-            currentResults.sort((a, b) => b.score - a.score);
-
-            currentResults.forEach((p, index) => {
-                let pt = (p.score - RULE.base) / 1000;
-                pt += RULE.uma[index];
-                if (index === 0) pt += RULE.oka;
-                p.gamePt = Math.round(pt * 10) / 10;
-                p.rank = index + 1;
-
-                if (!appData.players[p.name]) {
-                    appData.players[p.name] = { pt: 0, count: 0 };
-                }
-                appData.players[p.name].pt = Math.round((appData.players[p.name].pt + p.gamePt) * 10) / 10;
-                appData.players[p.name].count += 1;
+            // Sort
+            res.sort((a,b)=>b.score-a.score);
+            // Calculate
+            res.forEach((p,i) => {
+                let pt = (p.score-30000)/1000 + RULE.uma[i] + (i===0?20:0);
+                p.gamePt = Math.round(pt*10)/10; p.rank=i+1;
+                if(!appData.players[p.name]) appData.players[p.name] = {pt:0, count:0};
+                appData.players[p.name].pt = Math.round((appData.players[p.name].pt + p.gamePt)*10)/10;
+                appData.players[p.name].count++;
                 p.totalPtAfter = appData.players[p.name].pt;
             });
-
-            const matchId = appData.matches.length + 1;
-            appData.matches.push({
-                id: matchId,
-                timestamp: new Date().toISOString(),
-                results: currentResults
-            });
-
-            saveData();
-            updateUI();
-            showShareModal(currentResults, matchId);
-            resetInputs(false);
+            appData.matches.push({id:appData.matches.length+1, timestamp:new Date().toISOString(), results:res});
+            saveData(); updateUI(); showMatchPoster(res, appData.matches.length);
+            resetInputs();
         }
 
+        // --- Logic: Undo ---
         function undoLastMatch() {
-            if (appData.matches.length === 0) return;
-            
-            if (!confirm("⚠️ 确定要撤销刚刚录入的这一局比赛吗？\n撤销后，选手的分数将回退到上一局的状态。")) {
-                return;
-            }
-
-            const lastMatch = appData.matches.pop(); 
-
-            lastMatch.results.forEach(p => {
-                if (appData.players[p.name]) {
-                    appData.players[p.name].pt = Math.round((appData.players[p.name].pt - p.gamePt) * 10) / 10;
-                    appData.players[p.name].count -= 1;
+            if(!appData.matches.length || !confirm("确定撤销上一局？")) return;
+            const m = appData.matches.pop();
+            m.results.forEach(p => {
+                if(appData.players[p.name]) {
+                    appData.players[p.name].pt = Math.round((appData.players[p.name].pt - p.gamePt)*10)/10;
+                    appData.players[p.name].count--;
                 }
             });
-
-            saveData();
-            updateUI();
-            alert("已撤销上一局记录。");
+            saveData(); updateUI(); alert("已撤销");
         }
 
-        // --- 新增：历史海报再生 ---
-        function regeneratePoster(id) {
-            const match = appData.matches.find(m => m.id === id);
-            if(match) {
-                showShareModal(match.results, match.id);
-            }
-        }
-
+        // --- Logic: UI Update (The fixed part) ---
         function updateUI() {
             const undoBtn = document.getElementById('undo-btn');
-            undoBtn.style.display = appData.matches.length > 0 ? 'inline-block' : 'none';
+            undoBtn.style.display = appData.matches.length ? 'inline-block' : 'none';
 
-            const dataList = document.getElementById('history-names');
-            dataList.innerHTML = '';
-            Object.keys(appData.players).forEach(name => {
-                const opt = document.createElement('option');
-                opt.value = name;
-                dataList.appendChild(opt);
+            // Leaderboard
+            const tb = document.querySelector('#leaderboard-table tbody'); tb.innerHTML='';
+            Object.entries(appData.players).sort((a,b)=>b[1].pt - a[1].pt).forEach((p,i) => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td style="color:${i<3?'var(--primary-gold)':'#888'};font-weight:${i<3?'bold':'normal'}">${i+1}</td>
+                <td style="text-align:left;font-weight:bold">${p[0]}</td><td>${p[1].count}</td>
+                <td class="${p[1].pt>=0?'score-plus':'score-minus'}" style="font-weight:bold">${p[1].pt>0?'+'+p[1].pt:p[1].pt}</td>`;
+                tb.appendChild(tr);
             });
 
-            const tbody = document.querySelector('#leaderboard-table tbody');
-            tbody.innerHTML = '';
-            const sortedPlayers = Object.entries(appData.players)
-                .map(([name, data]) => ({ name, ...data }))
-                .sort((a, b) => b.pt - a.pt);
-
-            sortedPlayers.forEach((p, i) => {
-                const tr = document.createElement('tr');
-                const ptStr = p.pt > 0 ? '+' + p.pt : p.pt;
-                const ptClass = p.pt >= 0 ? 'score-plus' : 'score-minus';
-                
-                tr.innerHTML = `
-                    <td style="color:${i<3 ? 'var(--primary-gold)' : '#888'}; font-weight:${i<3?'bold':'normal'}; font-family:var(--font-head); font-size:${i<3?'0.9rem':'0.8rem'}">${i+1}</td>
-                    <td style="text-align:left; font-weight:bold; color:#fff">${p.name}</td>
-                    <td>${p.count}</td>
-                    <td class="${ptClass}" style="font-weight:bold">${ptStr}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            const hbody = document.querySelector('#history-table tbody');
-            hbody.innerHTML = '';
+            // History
+            const hb = document.querySelector('#history-table tbody'); hb.innerHTML='';
             [...appData.matches].reverse().forEach(m => {
-                const trMain = document.createElement('tr');
-                trMain.className = 'history-row';
-                trMain.onclick = () => toggleHistoryDetail(m.id);
-                const r1 = m.results[0];
-                
-                trMain.innerHTML = `
-                    <td style="color:var(--primary-gold); font-family:var(--font-num)">${m.id}</td>
-                    <td style="font-weight:bold; color:#fff">${r1.name}</td>
-                    <td>${m.results[1].name}</td>
-                    <td>${m.results[2].name}</td>
-                    <td>${m.results[3].name}</td>
-                `;
-                hbody.appendChild(trMain);
+                let r1 = m.results[0];
+                let tr = document.createElement('tr'); tr.className='history-row'; tr.onclick=()=>toggleDetail(m.id);
+                tr.innerHTML = `<td style="color:var(--primary-gold)">${m.id}</td><td style="font-weight:bold">${r1.name}</td>
+                <td>${m.results[1].name}</td><td>${m.results[2].name}</td><td>${m.results[3].name}</td>`;
+                hb.appendChild(tr);
 
-                const trDetail = document.createElement('tr');
-                trDetail.className = 'history-detail-row';
-                trDetail.id = `detail-${m.id}`;
-                
-                let detailsHTML = `<div class="detail-wrapper"><div class="detail-grid">`;
+                let dtr = document.createElement('tr'); dtr.className='history-detail-row'; dtr.id=`detail-${m.id}`;
+                let dhtml = `<div class="detail-wrapper"><div class="detail-grid">`;
                 m.results.forEach(p => {
-                    const ptStr = p.gamePt > 0 ? '+' + p.gamePt : p.gamePt;
-                    const ptColor = p.gamePt >= 0 ? '#ff4d4d' : '#4dff88';
-                    detailsHTML += `
-                        <div class="detail-item">
-                            <span class="d-rank">${p.rank}</span>
-                            <span class="d-name">${p.name}</span>
-                            <span class="d-score">${p.score}</span>
-                            <span class="d-pt" style="color:${ptColor}">${ptStr}</span>
-                        </div>
-                    `;
+                    let ptStr = p.gamePt>0?'+'+p.gamePt:p.gamePt;
+                    dhtml += `<div class="detail-item"><span class="d-rank">${p.rank}</span><span class="d-name">${p.name}</span>
+                    <span class="d-score">${p.score}</span><span class="d-pt" style="color:${p.gamePt>=0?'#ff4d4d':'#4dff88'}">${ptStr}</span></div>`;
                 });
-                detailsHTML += `</div>`;
-                // V0.63: 添加再生海报按钮
-                detailsHTML += `
-                    <div class="history-actions">
-                        <button class="btn-regenerate" onclick="regeneratePoster(${m.id})">📸 查看本局海报</button>
-                    </div>
-                </div>`;
-                
-                trDetail.innerHTML = `<td colspan="5" style="padding:0; border:none;">${detailsHTML}</td>`;
-                hbody.appendChild(trDetail);
+                dhtml += `</div><div style="text-align:center"><button class="btn-regenerate" onclick="regenerateMatch(${m.id})">📸 查看本局海报</button></div></div>`;
+                dtr.innerHTML = `<td colspan="5" style="padding:0;border:none">${dhtml}</td>`;
+                hb.appendChild(dtr);
             });
         }
+        
+        function toggleDetail(id) {
+            let row = document.getElementById(`detail-${id}`);
+            let isShow = row.classList.contains('show');
+            document.querySelectorAll('.history-detail-row').forEach(e=>e.classList.remove('show'));
+            if(!isShow) row.classList.add('show');
+        }
+        function regenerateMatch(id) { const m = appData.matches.find(x=>x.id===id); if(m) showMatchPoster(m.results, m.id); }
 
-        function toggleHistoryDetail(id) {
-            const row = document.getElementById(`detail-${id}`);
-            if(row.classList.contains('show')) {
-                row.classList.remove('show');
-            } else {
-                document.querySelectorAll('.history-detail-row').forEach(el => el.classList.remove('show'));
-                row.classList.add('show');
-            }
+        // --- Logic: Yakuman ---
+        function generateCertificate() {
+            const name = document.getElementById('y-name').value, hand = document.getElementById('y-hand').value;
+            if(!name || !hand) { alert("信息不全"); return; }
+            
+            switchTab('yakuman');
+            document.getElementById('match-poster-dom').style.display='none';
+            document.getElementById('penalty-dom').style.display='none';
+            document.getElementById('yakuman-cert-dom').style.display='flex';
+            
+            document.getElementById('cert-name').innerText = name;
+            const now = new Date(); document.getElementById('cert-date').innerText = `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()}`;
+            document.getElementById('cert-type').innerText = document.getElementById('y-type').value;
+            document.getElementById('cert-yaku').innerText = document.getElementById('y-yaku').value;
+            
+            const cont = document.getElementById('cert-tiles-container'); cont.innerHTML='';
+            const tiles = parseHand(hand);
+            tiles.forEach(t => {
+                let d = document.createElement('div'); d.className=`real-tile ${t.cls}`; d.innerText=t.char; cont.appendChild(d);
+            });
+            openModal();
         }
 
-        function showShareModal(results, gameId) {
-            const modal = document.getElementById('share-modal');
-            const content = document.getElementById('share-content');
-            
-            document.getElementById('capture-target').style.display = 'block';
-            document.getElementById('img-preview-area').style.display = 'none';
-            document.getElementById('img-preview-area').innerHTML = '<div class="save-tip">✅ 生成成功！请长按下方图片保存</div>';
-            document.getElementById('modal-controls').style.display = 'flex';
+        function parseHand(str) {
+            let tiles=[], regex=/(\d+)([mps])/g, match, consumed=str;
+            while ((match = regex.exec(str)) !== null) {
+                let uMap={'m':['🀇','🀈','🀉','🀊','🀋','🀌','🀍','🀎','🀏'],'p':['🀙','🀚','🀛','🀜','🀝','🀞','🀟','🀠','🀡'],'s':['🀐','🀑','🀒','🀓','🀔','🀕','🀖','🀗','🀘']};
+                let cMap={'m':'man','p':'pin','s':'sou'};
+                match[1].split('').forEach(n=>tiles.push({char:uMap[match[2]][n-1], cls:cMap[match[2]]}));
+                consumed=consumed.replace(match[0],'');
+            }
+            let hMap={'e':'🀀','s':'🀁','w':'🀂','n':'🀃','P':'🀆','b':'🀆','p':'🀆','f':'🀅','c':'🀄'};
+            let cMap={'e':'honor','s':'honor','w':'honor','n':'honor','P':'honor','b':'honor','p':'honor','f':'green','c':'red'};
+            for(let c of consumed) if(hMap[c]) tiles.push({char:hMap[c], cls:cMap[c]});
+            return tiles;
+        }
 
-            document.getElementById('share-game-id').innerText = `GAME #${String(gameId).padStart(2, '0')}`;
+        // --- Logic: Penalty ---
+        function generatePenalty() {
+            const name = document.getElementById('pen-name').value;
+            const reason = document.getElementById('pen-reason').value;
+            const result = document.getElementById('pen-result').value;
+
+            if(!name || !reason || !result) { alert("请填写完整处罚信息"); return; }
+
+            switchTab('penalty');
+            document.getElementById('match-poster-dom').style.display='none';
+            document.getElementById('yakuman-cert-dom').style.display='none';
+            document.getElementById('penalty-dom').style.display='block';
+
+            document.getElementById('pen-dom-name').innerText = name;
+            document.getElementById('pen-dom-reason').innerText = reason;
+            document.getElementById('pen-dom-result').innerText = result;
+            
+            // New Timestamp logic
             const now = new Date();
-            document.getElementById('share-date').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+            const timeStr = now.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            document.getElementById('pen-dom-time').innerText = "Recorded at: " + timeStr;
 
-            content.innerHTML = '';
-            results.forEach(p => {
-                const row = document.createElement('div');
-                row.className = `sc-row r${p.rank}`;
-                
-                const ptStr = p.gamePt > 0 ? '+' + p.gamePt.toFixed(1) : p.gamePt.toFixed(1);
-                const ptClass = p.gamePt >= 0 ? 'val-pos' : 'val-neg';
-                let totalStr = p.totalPtAfter !== undefined ? (p.totalPtAfter > 0 ? '+' + p.totalPtAfter.toFixed(1) : p.totalPtAfter.toFixed(1)) : '-';
-
-                row.innerHTML = `
-                    <div class="sc-rank-badge">${p.rank}</div>
-                    <div class="sc-name">${p.name}</div>
-                    <div class="sc-val sc-score">${p.score}</div>
-                    <div class="sc-val sc-pt ${ptClass}">${ptStr}</div>
-                    <div class="sc-val sc-total">${totalStr}</div>
-                `;
-                content.appendChild(row);
-            });
-            modal.style.display = 'flex';
+            openModal();
         }
 
-        function downloadPoster() {
-            const target = document.querySelector(".share-card");
-            const btn = document.querySelector(".btn-download");
-            btn.innerText = "⏳ 生成中...";
+        // --- Common ---
+        function showMatchPoster(results, id) {
+            document.getElementById('match-poster-dom').style.display='block';
+            document.getElementById('yakuman-cert-dom').style.display='none';
+            document.getElementById('penalty-dom').style.display='none';
             
-            html2canvas(target, {
-                backgroundColor: null, 
-                scale: 3,
-                useCORS: true
-            }).then(canvas => {
+            document.getElementById('share-game-id').innerText = `GAME #${String(id).padStart(2,'0')}`;
+            const now = new Date(); document.getElementById('share-date').innerText = `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()}`;
+            const cont = document.getElementById('share-content'); cont.innerHTML='';
+            results.forEach(p => {
+                let div = document.createElement('div'); div.className=`sc-row r${p.rank}`;
+                let ptStr = p.gamePt>0?'+'+p.gamePt.toFixed(1):p.gamePt.toFixed(1);
+                let tot = p.totalPtAfter!==undefined?(p.totalPtAfter>0?'+'+p.totalPtAfter.toFixed(1):p.totalPtAfter.toFixed(1)):'-';
+                div.innerHTML = `<div class="sc-rank-badge">${p.rank}</div><div class="sc-name">${p.name}</div>
+                <div class="sc-val sc-score">${p.score}</div><div class="sc-val sc-pt ${p.gamePt>=0?'val-pos':'val-neg'}">${ptStr}</div>
+                <div class="sc-val sc-total">${tot}</div>`;
+                cont.appendChild(div);
+            });
+            openModal();
+        }
+
+        function openModal() {
+            document.getElementById('share-modal').style.display='flex';
+            document.getElementById('capture-target').style.display='block';
+            document.getElementById('img-preview-area').style.display='none';
+            document.getElementById('modal-controls').style.display='flex';
+        }
+        function closeModal() { document.getElementById('share-modal').style.display='none'; }
+        
+        function downloadImage() {
+            const btn = document.querySelector(".btn-download"); btn.innerText = "⏳ 渲染中...";
+            let target;
+            if(document.getElementById('match-poster-dom').style.display === 'block') target = document.getElementById('match-poster-dom');
+            else if(document.getElementById('yakuman-cert-dom').style.display === 'flex') target = document.getElementById('yakuman-cert-dom');
+            else target = document.getElementById('penalty-dom');
+
+            html2canvas(target, {backgroundColor:null, scale:3}).then(canvas => {
                 btn.innerText = "📸 保存为图片";
-                
                 const imgData = canvas.toDataURL("image/png");
-
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (!isIOS) {
-                    const link = document.createElement('a');
-                    link.download = `801League_Game_${document.getElementById('share-game-id').innerText}.png`;
-                    link.href = imgData;
-                    link.click();
-                }
-
-                const img = document.createElement('img');
-                img.src = imgData;
-                const previewArea = document.getElementById('img-preview-area');
-                previewArea.appendChild(img);
-                
-                document.getElementById('capture-target').style.display = 'none';
-                document.getElementById('modal-controls').style.display = 'none';
-                previewArea.style.display = 'block';
-                
-                const closePreviewBtn = document.createElement('button');
-                closePreviewBtn.innerText = "关闭页面";
-                closePreviewBtn.className = "btn-close";
-                closePreviewBtn.style.marginTop = "20px";
-                closePreviewBtn.onclick = closeModal;
-                previewArea.appendChild(closePreviewBtn);
-
-            }).catch(err => {
-                console.error(err);
-                alert("生成图片失败，请重试");
-                btn.innerText = "📸 保存为图片";
+                const prev = document.getElementById('img-preview-area'); 
+                prev.innerHTML = '<div class="save-tip">✅ 生成成功！请长按下方图片保存</div>';
+                const img = document.createElement('img'); img.src = imgData; prev.appendChild(img);
+                document.getElementById('capture-target').style.display='none';
+                document.getElementById('modal-controls').style.display='none';
+                prev.style.display='block';
+                let cls = document.createElement('button'); cls.innerText="关闭"; cls.className="btn-close"; cls.onclick=closeModal; cls.style.marginTop="20px"; prev.appendChild(cls);
             });
         }
 
-        function closeModal() {
-            document.getElementById('share-modal').style.display = 'none';
+        function resetInputs() {
+             document.querySelectorAll('input').forEach(i=>i.value='');
+             document.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
+             checkSum();
         }
-
-        function resetInputs(clearNames = true) {
-            if(clearNames) {
-                ['p1-name', 'p2-name', 'p3-name', 'p4-name'].forEach(id => document.getElementById(id).value = '');
-            }
-            ['p1-score', 'p2-score', 'p3-score', 'p4-score'].forEach(id => document.getElementById(id).value = '');
-            checkSum();
-        }
-
-        function clearAllData() {
-            if(confirm("⚠️ 危险操作\n\n确定要清空所有比赛数据和排行榜吗？\n此操作不可恢复！")) {
-                localStorage.removeItem('801_league_data_v6');
-                appData = { matches: [], players: {} };
-                updateUI();
-            }
-        }
+        function clearAllData() { if(confirm("确认清空？")) { localStorage.removeItem('801_league_data_v7'); appData={matches:[],players:{}}; updateUI(); } }
     </script>
 </body>
 </html>
