@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>801.LEAGUE 赛事系统 v0.72+</title>
+    <title>801.LEAGUE 赛事系统 v0.73</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +21,10 @@
             --danger-red: #d50000;
             --text-white: #ffffff;
             --text-gray: #7d859e;
+            --rank-1-bg: #cfaa68;
+            --rank-2-bg: #8b9bb4;
+            --rank-3-bg: #a05e46;
+            --rank-4-bg: #4a5568;
             --font-head: 'Oswald', sans-serif;
             --font-num: 'JetBrains Mono', monospace;
             --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -42,7 +46,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- Header --- */
+        /* --- Header (V0.73 Updated) --- */
         .header { text-align: center; margin-bottom: 25px; position: relative; padding-bottom: 15px; width: 100%; }
         .header::after {
             content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
@@ -55,8 +59,10 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
+        /* V0.73 Organizer Name */
+        .organizer { color: var(--primary-gold); font-family: var(--font-head); font-size: 0.9rem; margin-top: 5px; letter-spacing: 1px; font-weight: 500; }
         .header .meta-row { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 5px; }
-        .subtitle { color: var(--primary-gold); font-family: var(--font-head); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; }
+        .subtitle { color: var(--text-gray); font-family: var(--font-head); font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; }
         .version-badge {
             background: rgba(207, 170, 104, 0.15); border: 1px solid var(--primary-gold-dim);
             color: var(--primary-gold); font-family: var(--font-num); font-size: 0.7rem;
@@ -158,41 +164,56 @@
         #img-preview-area img { max-width: 100%; border: 1px solid #fff; border-radius: 4px; }
         .save-tip { color: #4dff88; font-size: 0.8rem; margin-bottom: 5px; }
 
-        /* Match Poster */
-        .share-card { width: 550px; max-width: 100%; background: #12151f; background-image: linear-gradient(rgba(18, 21, 31, 0.97), rgba(18, 21, 31, 0.97)), repeating-linear-gradient(45deg, #1f2536 0, #1f2536 1px, transparent 0, transparent 40px); border: 2px solid var(--primary-gold); border-radius: 6px; overflow: hidden; font-family: var(--font-body); position: relative; }
+        /* =========================================
+           V0.73 Match Poster Optimized
+           ========================================= */
+        /* Increased width for better PT display */
+        .share-card { width: 600px; max-width: 100%; background: #12151f; background-image: linear-gradient(rgba(18, 21, 31, 0.97), rgba(18, 21, 31, 0.97)), repeating-linear-gradient(45deg, #1f2536 0, #1f2536 1px, transparent 0, transparent 40px); border: 2px solid var(--primary-gold); border-radius: 6px; overflow: hidden; font-family: var(--font-body); position: relative; }
         .sc-header { background: linear-gradient(90deg, #080a10 0%, #1c2130 100%); display: flex; justify-content: space-between; align-items: flex-end; padding: 20px 30px; border-bottom: 1px solid var(--primary-gold); }
         .sc-title h2 { margin: 0; color: #fff; font-family: var(--font-head); font-style: italic; font-weight: 700; font-size: 2.2rem; }
         .sc-title span { color: var(--primary-gold); }
         .sc-meta { text-align: right; }
         .sc-game-id { color: var(--primary-gold); font-family: var(--font-head); font-weight: 700; font-size: 1.4rem; }
         .sc-date { color: var(--text-gray); font-family: var(--font-num); font-size: 0.75rem; }
-        .sc-labels, .sc-row { display: grid; grid-template-columns: 50px 1fr 80px 80px 80px; gap: 15px; align-items: center; padding: 0 25px; }
+        
+        /* V0.73 Optimized Grid: Wider columns for PT */
+        /* Columns: Rank(50) | Name(Auto) | Score(90) | PT(90) | Total(95) */
+        .sc-labels, .sc-row { display: grid; grid-template-columns: 50px 1fr 90px 90px 95px; gap: 12px; align-items: center; padding: 0 25px; }
         .sc-labels { padding-top: 12px; padding-bottom: 8px; background: rgba(255,255,255,0.02); font-family: var(--font-head); font-size: 0.65rem; color: #5d6680; text-transform: uppercase; letter-spacing: 1px; }
         .sc-row { background: rgba(255,255,255,0.03); margin: 0 25px 8px 25px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); height: 60px; padding: 0; }
+        
         .lbl-right { text-align: right; } .lbl-right.highlight { color: var(--primary-gold); opacity: 0.9; }
-        .sc-rank-badge { height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 700; font-style: italic; font-size: 1.6rem; color: rgba(0,0,0,0.4); background: #2a2f40; }
-        .sc-row.r1 { background: linear-gradient(90deg, rgba(207, 170, 104, 0.15) 0%, transparent 100%); border-color: rgba(207, 170, 104, 0.4); }
-        .sc-row.r1 .sc-rank-badge { background: var(--rank-1-bg); color: #1a1a1a; }
-        .sc-row.r2 .sc-rank-badge { background: var(--rank-2-bg); color: #1a1a1a; }
-        .sc-row.r3 .sc-rank-badge { background: var(--rank-3-bg); color: #1a1a1a; }
-        .sc-row.r4 .sc-rank-badge { background: var(--rank-4-bg); color: #fff; }
+        
+        /* V0.73 Improved Rank Badge Contrast */
+        .sc-rank-badge { height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 700; font-style: italic; font-size: 1.6rem; color: rgba(255,255,255,0.5); background: #2a2f40; }
+        .sc-row.r1 { background: linear-gradient(90deg, rgba(207, 170, 104, 0.2) 0%, transparent 100%); border-color: var(--rank-1-bg); }
+        .sc-row.r1 .sc-rank-badge { background: var(--rank-1-bg); color: #000; border-right: 2px solid #fff; box-shadow: 2px 0 5px rgba(0,0,0,0.3); }
+        .sc-row.r2 { background: linear-gradient(90deg, rgba(139, 155, 180, 0.2) 0%, transparent 100%); border-color: var(--rank-2-bg); }
+        .sc-row.r2 .sc-rank-badge { background: var(--rank-2-bg); color: #000; border-right: 2px solid #fff; box-shadow: 2px 0 5px rgba(0,0,0,0.3); }
+        .sc-row.r3 { background: linear-gradient(90deg, rgba(160, 94, 70, 0.2) 0%, transparent 100%); border-color: var(--rank-3-bg); }
+        .sc-row.r3 .sc-rank-badge { background: var(--rank-3-bg); color: #000; border-right: 2px solid #fff; box-shadow: 2px 0 5px rgba(0,0,0,0.3); }
+        .sc-row.r4 .sc-rank-badge { background: var(--rank-4-bg); color: #fff; opacity: 0.7; }
+
         .sc-name { font-family: var(--font-body); font-weight: 700; color: #fff; font-size: 1.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px; }
-        .sc-val { font-family: var(--font-num); text-align: right; padding-right: 10px; }
+        .sc-val { font-family: var(--font-num); text-align: right; padding-right: 5px; }
         .sc-score { color: var(--text-gray); font-size: 0.95rem; }
         .sc-pt { font-weight: 800; font-size: 1.2rem; }
-        .sc-total { font-weight: 700; color: var(--primary-gold); border-left: 1px solid #333; font-size: 1rem; }
+        .sc-total { font-weight: 700; color: var(--primary-gold); border-left: 1px solid #444; font-size: 1rem; padding-left: 10px; }
         .val-pos { color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.3); } .val-neg { color: #6a768f; }
         .sc-footer { background: linear-gradient(to bottom, #141824, #000); color: #aab; text-align: center; font-size: 0.65rem; padding: 15px 12px; letter-spacing: 4px; font-family: "Noto Serif SC", serif; font-weight: 700; border-top: 1px solid #333; text-shadow: 0 1px 2px rgba(0,0,0,0.8); text-transform: uppercase; }
 
-        @media screen and (max-width: 500px) {
-            .share-card { width: 340px; }
+        /* V0.73 Mobile Grid Adjustments */
+        @media screen and (max-width: 550px) {
+            .share-card { width: 360px; } /* Slightly wider mobile card */
             .sc-header { padding: 15px; } .sc-title h2 { font-size: 1.8rem; }
-            .sc-labels, .sc-row { grid-template-columns: 35px 1fr 50px 50px 50px; gap: 5px; padding-left: 0; padding-right: 0; }
+            /* Tighter columns but enough for data */
+            .sc-labels, .sc-row { grid-template-columns: 35px 1fr 60px 60px 65px; gap: 5px; padding-left: 0; padding-right: 0; }
             .sc-row { margin: 0 10px 8px 10px; } .sc-labels { padding: 10px 10px 5px 10px; }
             .sc-name { font-size: 0.9rem; } .sc-rank-badge { font-size: 1.3rem; }
+            .sc-score { font-size: 0.8rem; } .sc-pt { font-size: 0.95rem; } .sc-total { font-size: 0.85rem; padding-left: 5px; }
         }
 
-        /* Yakuman Certificate (Hyper-Realistic Update) */
+        /* Yakuman Certificate (Realistic) */
         .cert-card {
             width: 800px; max-width: 100%;
             background: #0d0d0d; border: 4px double var(--primary-gold); padding: 40px; position: relative; text-align: center;
@@ -208,54 +229,26 @@
             text-shadow: 0 5px 15px rgba(0,0,0,0.8); letter-spacing: 5px;
             background: linear-gradient(180deg, #fff 0%, #cfaa68 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
-        /* --- Realistic Tile CSS --- */
         .cert-tiles { display: flex; gap: 4px; justify-content: center; margin: 35px 0; flex-wrap: wrap; perspective: 600px; }
         .real-tile {
-            width: 48px; height: 66px;
-            /* 面色：乳白渐变 */
-            background: linear-gradient(145deg, #fffdf5 0%, #eee8d5 100%);
-            border-radius: 6px;
-            position: relative;
-            /* 模拟牌背厚度(Border-bottom) + 投影 */
-            box-shadow: 
-                inset 0 1px 0 rgba(255,255,255,0.9), /* 顶部高光 */
-                0 6px 0 #d9a046, /* 牌背/侧面 (黄色树脂层) */
-                0 10px 8px rgba(0,0,0,0.5); /* 桌面投影 */
-            display: flex; align-items: center; justify-content: center;
-            font-size: 42px; line-height: 1;
-            transform: rotateX(5deg); /* 轻微3D倾斜 */
-            margin-bottom: 6px; /* 补偿3D偏移 */
-            z-index: 1;
+            width: 48px; height: 66px; background: linear-gradient(145deg, #fffdf5 0%, #eee8d5 100%); border-radius: 6px; position: relative;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 6px 0 #d9a046, 0 10px 8px rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center; font-size: 42px; line-height: 1; transform: rotateX(5deg); margin-bottom: 6px; z-index: 1;
         }
-        /* 表面光泽反射 */
-        .real-tile::after {
-            content: ""; position: absolute; top: 0; left: 0; right: 0; height: 40%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.0));
-            border-radius: 6px 6px 30% 30%;
-            pointer-events: none;
-        }
-        /* 字体颜色与微雕效果 */
-        .real-tile.man { color: #b91e2e; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
-        .real-tile.sou { color: #1a6840; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
-        .real-tile.pin { color: #224475; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
-        .real-tile.honor { color: #000; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
-        .real-tile.red { color: #d50000; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
-        .real-tile.green { color: #1b5e20; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
-
+        .real-tile::after { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 40%; background: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.0)); border-radius: 6px 6px 30% 30%; pointer-events: none; }
+        .real-tile.man { color: #b91e2e; text-shadow: 0 1px 0 rgba(255,255,255,0.5); } .real-tile.pin { color: #224475; text-shadow: 0 1px 0 rgba(255,255,255,0.5); } .real-tile.sou { color: #1a6840; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+        .real-tile.honor { color: #000; text-shadow: 0 1px 0 rgba(255,255,255,0.5); } .real-tile.red { color: #d50000; text-shadow: 0 1px 0 rgba(255,255,255,0.5); } .real-tile.green { color: #1b5e20; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
         .cert-footer { margin-top: 30px; display: flex; flex-direction: column; align-items: flex-end; width: 100%; text-align: right; }
         .cert-org { font-size: 1.1rem; font-weight: bold; color: #fff; position: relative; margin-right: 20px; }
         .cert-seal-box {
             position: absolute; top: -40px; right: -20px; width: 100px; height: 100px;
-            border: 4px solid #b71c1c; border-radius: 4px; color: #b71c1c;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-family: var(--font-calligraphy), serif; font-size: 1.5rem; line-height: 1.1;
-            transform: rotate(-8deg); opacity: 0.85; mix-blend-mode: screen;
+            border: 4px solid #b71c1c; border-radius: 4px; color: #b71c1c; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: var(--font-calligraphy), serif; font-size: 1.5rem; line-height: 1.1; transform: rotate(-8deg); opacity: 0.85; mix-blend-mode: screen;
             box-shadow: 0 0 0 2px rgba(183, 28, 28, 0.2); background: rgba(183, 28, 28, 0.05);
         }
         .cert-seal-text { font-weight: bold; letter-spacing: 2px; }
 
-        /* Penalty Card */
+        /* Penalty Card (V0.73 Highlighted Timestamp) */
         .penalty-card {
             width: 600px; max-width: 100%;
             background: #0a0000; border: 2px solid #500; border-top: 8px solid #d50000;
@@ -268,10 +261,17 @@
         .penalty-content { font-size: 1.3rem; line-height: 1.8; color: #ddd; margin: 20px 0; z-index: 1; position: relative; }
         .penalty-player { color: #fff; font-size: 1.8rem; font-weight: bold; text-decoration: underline; text-decoration-color: #d50000; }
         .penalty-reason { color: #f55; font-weight: bold; }
-        .penalty-result { margin-top: 20px; padding: 15px; background: rgba(213, 0, 0, 0.1); border-left: 5px solid #d50000; color: #fff; font-weight: bold; }
-        /* Timestamp style */
-        .penalty-time { margin-top: 25px; font-size: 0.85rem; color: #777; font-family: var(--font-num); letter-spacing: 1px; border-top: 1px solid #333; display: inline-block; padding-top: 5px; }
-        .penalty-footer { margin-top: 15px; font-size: 0.9rem; color: #666; text-align: center; }
+        .penalty-result { margin-top: 20px; padding: 15px; background: rgba(213, 0, 0, 0.1); border-left: 5px solid #d50000; color: #fff; font-weight: bold; font-size: 1.4rem; }
+        /* V0.73 Prominent Timestamp */
+        .penalty-time.highlighted {
+            margin: 20px auto; display: inline-block;
+            padding: 5px 15px;
+            background: #d50000; color: #fff;
+            font-family: var(--font-num); font-weight: bold; font-size: 0.9rem;
+            border-radius: 4px; letter-spacing: 1px;
+            box-shadow: 0 2px 10px rgba(213,0,0,0.3);
+        }
+        .penalty-footer { margin-top: 30px; font-size: 0.9rem; color: #666; text-align: center; }
 
     </style>
 </head>
@@ -279,9 +279,10 @@
 
     <div class="header">
         <h1>801.LEAGUE</h1>
+        <div class="organizer">Presented by 黄埔鳄霸801</div>
         <div class="meta-row">
             <div class="subtitle">OFFICIAL MATCH RECORDER</div>
-            <div class="version-badge">v0.72</div>
+            <div class="version-badge">v0.73</div>
         </div>
     </div>
 
@@ -361,6 +362,8 @@
             
             <select id="pen-result">
                 <option value="" disabled selected>选择处罚结果</option>
+                <option value="黄牌警告">黄牌警告 (Yellow Card)</option>
+                <option value="红牌 - 扣除12pt">红牌 - 扣除12pt (Red Card)</option>
                 <option value="本局停和">本局停和 (Dead Hand)</option>
                 <option value="错和罚符">错和罚符 (Chombo Payment)</option>
                 <option value="扣除 8pt">扣除 8pt</option>
@@ -454,8 +457,8 @@
                     <div class="penalty-result">
                         处理结果：<span id="pen-dom-result">处罚结果</span>
                     </div>
+                    <div class="penalty-time highlighted" id="pen-dom-time">TIME</div>
                     <p style="margin-top:20px; font-size:1rem;">望各位选手引以为戒，遵守比赛规则，<br>共同维护良好的竞技环境。</p>
-                    <div class="penalty-time" id="pen-dom-time"></div>
                 </div>
                 <div class="penalty-footer">黄埔鳄霸801立直麻将竞赛管理小组</div>
             </div>
@@ -472,9 +475,9 @@
     <div class="patch-notes-container">
         <button class="patch-toggle" onclick="togglePatchNotes()">📝 查看版本更新日志 (Patch Notes)</button>
         <div class="patch-list" id="patch-list">
+            <div class="patch-item"><span class="patch-ver">v0.73</span> 优化海报排版与对比度，确保数据完整显示；页眉增加发起方；处罚证书时间戳高亮并居中；新增黄牌/红牌处罚选项。</div>
             <div class="patch-item"><span class="patch-ver">v0.72+</span> 优化麻将牌为拟真3D质感；处罚证书新增精确时间戳；修复数据初始化问题。</div>
             <div class="patch-item"><span class="patch-ver">v0.71</span> 新增黑榜处罚生成器；印章样式更新。</div>
-            <div class="patch-item"><span class="patch-ver">v0.70</span> 新增役满证书生成器；修复移动端海报ID显示不全问题。</div>
         </div>
     </div>
 
@@ -483,7 +486,6 @@
         let appData = { matches: [], players: {} };
         let currentMode = 'match'; 
 
-        // !!! V0.72 修复: 加入 updateUI() !!!
         window.onload = function() { loadData(); updateUI(); };
 
         function switchTab(tab) {
@@ -493,9 +495,6 @@
             
             document.getElementById('btn-tab-'+tab).classList.add(tab==='penalty'?'active-danger':'active');
             document.getElementById('tab-'+tab).classList.add('active');
-            
-            // 可选：如果希望只有在Match页面才显示列表，可以解开下面注释
-            // document.getElementById('tables-container').style.display = tab === 'match' ? 'block' : 'none';
         }
 
         function togglePatchNotes() { document.getElementById('patch-list').classList.toggle('show'); }
@@ -524,9 +523,7 @@
                 if(!n || s%100!==0) { alert("信息有误"); return; }
                 res.push({name:n, score:s});
             }
-            // Sort
             res.sort((a,b)=>b.score-a.score);
-            // Calculate
             res.forEach((p,i) => {
                 let pt = (p.score-30000)/1000 + RULE.uma[i] + (i===0?20:0);
                 p.gamePt = Math.round(pt*10)/10; p.rank=i+1;
@@ -553,12 +550,11 @@
             saveData(); updateUI(); alert("已撤销");
         }
 
-        // --- Logic: UI Update (The fixed part) ---
+        // --- Logic: UI Update ---
         function updateUI() {
             const undoBtn = document.getElementById('undo-btn');
             undoBtn.style.display = appData.matches.length ? 'inline-block' : 'none';
 
-            // Leaderboard
             const tb = document.querySelector('#leaderboard-table tbody'); tb.innerHTML='';
             Object.entries(appData.players).sort((a,b)=>b[1].pt - a[1].pt).forEach((p,i) => {
                 let tr = document.createElement('tr');
@@ -568,7 +564,6 @@
                 tb.appendChild(tr);
             });
 
-            // History
             const hb = document.querySelector('#history-table tbody'); hb.innerHTML='';
             [...appData.matches].reverse().forEach(m => {
                 let r1 = m.results[0];
@@ -652,10 +647,9 @@
             document.getElementById('pen-dom-reason').innerText = reason;
             document.getElementById('pen-dom-result').innerText = result;
             
-            // New Timestamp logic
             const now = new Date();
             const timeStr = now.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-            document.getElementById('pen-dom-time').innerText = "Recorded at: " + timeStr;
+            document.getElementById('pen-dom-time').innerText = "执行时间: " + timeStr;
 
             openModal();
         }
